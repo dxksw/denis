@@ -37,5 +37,10 @@
   "year_summary_note_en": "The first annual review will appear at the end of 2027; 2026 will be covered by the Q4 review.",
   "footer_note": "",
   "footer_note_en": "",
-  "start_year": 2026
+  "start_year": 2026,
+  "effects": {
+    "wheel": true,
+    "sound": true,
+    "press": true
+  }
 }

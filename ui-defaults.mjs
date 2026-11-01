@@ -41,6 +41,7 @@ export const UI_DEFAULTS = {
     only_ru: { ru: 'Эта запись пока доступна только на русском языке.', en: 'This entry is available in Russian only for now.' },
     google_tr: { ru: 'Прочитать через Google Переводчик →', en: 'Read it with Google Translate →' },
     lang: { ru: 'Язык', en: 'Language' },
+    sound: { ru: 'Звук нажатий', en: 'Click sound' },
   },
   home: {
     btn_about: { ru: 'Обо мне', en: 'About me' },

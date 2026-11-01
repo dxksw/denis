@@ -345,6 +345,8 @@ function onlyRuNotice(pagePath) {
 const NAV = ['about', 'sport', 'articles', 'chronicle', 'achievements'];
 const sitemap = [];
 
+const SPEAKER = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"></path><path class="on" d="M15.5 9a4.5 4.5 0 0 1 0 6"></path><path class="on" d="M18 6.5a8 8 0 0 1 0 11"></path><path class="off" d="M16 9.5l5 5M21 9.5l-5 5"></path></svg>';
+const FX = ['wheel', 'sound', 'press'];
 const GLOBE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"></path></svg>';
 
 function layout(lang, { title, description, active, body, path: pagePath = '' }) {
@@ -358,10 +360,14 @@ function layout(lang, { title, description, active, body, path: pagePath = '' })
     `<a href="${link(`${id}/`, lang)}"${active === id ? ' aria-current="page"' : ''}>${esc(t(`menu.${id}`, lang))}</a>`).join('\n        ');
   const alternates = ORIGIN ? LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${esc(absolute(pagePath, l))}">`).join('\n')
     + `\n<link rel="alternate" hreflang="x-default" href="${esc(absolute(pagePath, DEFAULT_LANG))}">` : '';
+  const fx = FX.filter((k) => !(site.effects && site.effects[k] === false));
+  const soundBtn = fx.includes('sound')
+    ? `<button type="button" class="sound" aria-pressed="true" aria-label="${esc(t('common.sound', lang))}" title="${esc(t('common.sound', lang))}" hidden>${SPEAKER}</button>`
+    : '';
   const switcher = LANGS.map((l) => `<a href="${link(pagePath, l)}" lang="${l}" hreflang="${l}"${l === lang ? ' aria-current="true"' : ''}>${l.toUpperCase()}</a>`)
     .join('<span aria-hidden="true">/</span>');
   return `<!doctype html>
-<html lang="${lang}">
+<html lang="${lang}" data-fx="${fx.join(' ')}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -384,7 +390,10 @@ ${alternates}` : ''}
 <div class="topbar" aria-hidden="true"></div>
 <header class="site-header">
   <div class="site-header__inner">
-    <nav class="lang" aria-label="${esc(t('common.lang', lang))}">${GLOBE}${switcher}</nav>
+    <div class="tools">
+      ${soundBtn}
+      <nav class="lang" aria-label="${esc(t('common.lang', lang))}">${GLOBE}${switcher}</nav>
+    </div>
     <a class="brand" href="${link('', lang)}"${active === 'home' ? ' aria-current="page"' : ''}>
       <span class="monogram" aria-hidden="true">${esc(tr(site, 'initials', lang))}</span>
       <span class="brand__name">${esc(name)}</span>

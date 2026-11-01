@@ -47,4 +47,18 @@ console.log('✓ config.yml: тексты интерфейса обновлен�
 if (process.argv.includes('--data') || !fs.existsSync(DATA)) {
   fs.writeFileSync(DATA, JSON.stringify(UI_DEFAULTS, null, 2) + '\n');
   console.log('✓ content/settings/ui.json записан');
+} else {
+  // Добавляем только новые подписи, уже исправленные в админке не трогаем
+  const data = JSON.parse(fs.readFileSync(DATA, 'utf8'));
+  let added = 0;
+  for (const [group, keys] of Object.entries(UI_DEFAULTS)) {
+    data[group] = data[group] || {};
+    for (const [key, val] of Object.entries(keys)) {
+      if (!data[group][key]) { data[group][key] = val; added++; }
+    }
+  }
+  if (added) {
+    fs.writeFileSync(DATA, JSON.stringify(data, null, 2) + '\n');
+    console.log(`✓ content/settings/ui.json: добавлено новых подписей — ${added}`);
+  }
 }

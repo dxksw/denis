@@ -89,6 +89,10 @@
     "lang": {
       "ru": "Язык",
       "en": "Language"
+    },
+    "sound": {
+      "ru": "Звук нажатий",
+      "en": "Click sound"
     }
   },
   "home": {

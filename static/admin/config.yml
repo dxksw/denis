@@ -421,6 +421,16 @@ collections:
           - { label: Подпись в подвале, name: footer_note, widget: string, required: false, hint: 'Можно оставить пустой.' }
           - { label: Подпись в подвале (EN), name: footer_note_en, widget: string, required: false }
           - { label: Год начала, name: start_year, widget: number, value_type: int }
+          - label: Анимации и звук
+            name: effects
+            widget: object
+            required: false
+            collapsed: true
+            hint: 'Сними галочку, чтобы выключить эффект на всём сайте.'
+            fields:
+              - { label: Вращение блоков при прокрутке, name: wheel, widget: boolean, default: true, required: false }
+              - { label: Щелчок при нажатии, name: sound, widget: boolean, default: true, required: false }
+              - { label: Анимация нажатия кнопок, name: press, widget: boolean, default: true, required: false }
 
       - name: sport
         label: Спорт — цели
@@ -579,6 +589,12 @@ collections:
                   - { label: EN, name: en, widget: string, required: false }
               - label: "Язык"
                 name: lang
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Звук нажатий"
+                name: sound
                 widget: object
                 fields:
                   - { label: RU, name: ru, widget: string, required: false }
