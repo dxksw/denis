@@ -312,21 +312,58 @@ main { flex: 1; }
 .site-footer__meta { font-size: 14px; color: var(--muted); }
 
 /* ── Анимации: нажатие кнопок и «барабан» при прокрутке ── */
-:root { --spring: cubic-bezier(.3, 1.9, .5, 1); }
+:root {
+  --spring: cubic-bezier(.24, 1.7, .42, 1);   /* отпускание — с лёгкой пружинкой */
+  --snap: cubic-bezier(.2, .8, .3, 1);        /* нажатие — быстро и мягко */
+  --ink-rgb: 15, 31, 51;
+}
+/* Любая ссылка и кнопка: плавное пружинящее возвращение */
+.fx-press :is(a, button) {
+  --d: .55s; --e: var(--spring);
+  transition: scale var(--d) var(--e), translate var(--d) var(--e), box-shadow var(--d) var(--e), background-color .25s, color .2s, border-color .2s;
+}
+.fx-press :is(a, button).is-pressed { --d: .09s; --e: var(--snap); scale: .94; translate: 0 1px; }
+/* Ссылки внутри текста: подсвечиваются, как будто на них надавили */
+.fx-press a.is-inline { border-radius: 3px; }
+.fx-press a.is-inline.is-pressed { background-color: rgba(var(--ink-rgb), .1); box-shadow: 0 0 0 4px rgba(var(--ink-rgb), .1); }
+
+/* Кнопки-клавиши: стоят на «подставке» и вдавливаются в неё */
 .fx-press :is(.btn, .chip, .tile) {
-  box-shadow: 0 3px 0 var(--edge);
-  transition: translate .4s var(--spring), box-shadow .4s var(--spring), background-color .15s, color .15s, border-color .15s;
+  --lift: 4px;
+  --edge: #B5C0CE;
+  --glow: rgba(var(--ink-rgb), .22);
+  --inset: rgba(var(--ink-rgb), .2);
+  box-shadow: 0 var(--lift) 0 var(--edge), 0 calc(var(--lift) + 5px) 14px -8px var(--glow), inset 0 0 0 transparent;
 }
-.fx-press .btn { --edge: rgba(31, 58, 95, .3); }
-.fx-press .btn--solid { --edge: var(--accent-dark); }
-.fx-press .chip, .fx-press .tile { --edge: var(--line); }
-.fx-press .chip[aria-pressed="true"], .fx-press .chip[aria-current="true"] { --edge: var(--accent-dark); }
-.fx-press :is(.btn, .chip, .tile).is-pressed { translate: 0 3px; box-shadow: 0 0 0 var(--edge); transition-duration: .06s; }
-.fx-press :is(.nav a, .lang a, .brand, .sound, .more, .socials a, .section-link, .summary-link, .season-link, .note-link, .shot) {
-  transition: scale .4s var(--spring), background-color .15s, color .15s;
+.fx-press .btn--solid { --edge: #0A1626; --glow: rgba(var(--ink-rgb), .45); --inset: rgba(0, 0, 0, .45); }
+.fx-press .chip[aria-pressed="true"], .fx-press .chip[aria-current="true"] { --edge: #0A1626; --inset: rgba(0, 0, 0, .45); }
+.fx-press .tile[aria-current="true"] { --edge: #9FB0C5; }
+@media (hover: hover) {
+  .fx-press :is(.btn, .chip, .tile):hover {
+    translate: 0 -1px;
+    box-shadow: 0 calc(var(--lift) + 1px) 0 var(--edge), 0 calc(var(--lift) + 8px) 16px -8px var(--glow), inset 0 0 0 transparent;
+  }
 }
-.fx-press :is(.nav a, .lang a, .brand, .sound, .more, .socials a).is-pressed { scale: .92; transition-duration: .07s; }
-.fx-press :is(.section-link, .summary-link, .season-link, .note-link, .shot).is-pressed { scale: .985; transition-duration: .07s; }
+.fx-press :is(.btn, .chip, .tile).is-pressed {
+  scale: 1;
+  translate: 0 var(--lift);
+  box-shadow: 0 0 0 var(--edge), 0 0 0 -8px transparent, inset 0 3px 8px var(--inset);
+}
+
+/* Строки и плашки (четыре раздела на главной, ссылки-карточки): под ними появляется «вдавленная» подложка */
+.fx-press :is(.section-link, .socials a) { position: relative; isolation: isolate; }
+.fx-press :is(.section-link, .socials a)::before {
+  content: ""; position: absolute; inset: 6px -14px; z-index: -1; pointer-events: none;
+  background: var(--soft); box-shadow: inset 0 3px 9px rgba(var(--ink-rgb), .13);
+  opacity: 0; scale: .96; transition: opacity .45s ease, scale .55s var(--spring);
+}
+.fx-press :is(.section-link, .socials a).is-pressed::before { opacity: 1; scale: 1; transition-duration: .09s; }
+.fx-press :is(.section-link, .socials a).is-pressed { scale: .985; translate: 0 2px; }
+.fx-press :is(.summary-link, .season-link, .note-link, .shot) { box-shadow: inset 0 0 0 transparent; }
+.fx-press :is(.summary-link, .season-link, .note-link, .shot).is-pressed { scale: .985; translate: 0 2px; box-shadow: inset 0 3px 10px rgba(var(--ink-rgb), .16); }
+/* Значок звука */
+.fx-press .sound.is-pressed { scale: .86; background: var(--soft-2); box-shadow: inset 0 2px 5px rgba(var(--ink-rgb), .2); }
+
 .fx-wheel main { overflow-x: clip; }
 .fx-measure [data-wheel] { transform: none !important; }
 [data-wheel] { transform-origin: 50% 50%; }

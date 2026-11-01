@@ -202,54 +202,22 @@
     measure();
   })();
 
-  // 2. Нажатие: кнопки вдавливаются и пружинят обратно
-  var PRESS = '.btn, .chip, .tile, .nav a, .lang a, .brand, .sound, .more, .socials a, .section-link, .summary-link, .season-link, .note-link, .shot';
-  if (fxOn('press') && !reduceMotion) (function () {
-    root.classList.add('fx-press');
-    var current = null, since = 0, timer = 0;
-    function down(el) { current = el; since = Date.now(); el.classList.add('is-pressed'); }
-    function up(instant) {
-      clearTimeout(timer);
-      if (!current) return;
-      var el = current;
-      current = null;
-      setTimeout(function () { el.classList.remove('is-pressed'); }, instant ? 0 : Math.max(0, 110 - (Date.now() - since)));
-    }
-    document.addEventListener('pointerdown', function (e) {
-      if (e.button !== 0 || !e.target.closest) return;
-      var el = e.target.closest(PRESS);
-      if (!el) return;
-      up(true);
-      if (e.pointerType === 'touch') {
-        // на телефоне ждём чуть-чуть: вдруг это не нажатие, а прокрутка
-        current = el; since = Date.now();
-        timer = setTimeout(function () { if (current === el) el.classList.add('is-pressed'); }, 70);
-      } else {
-        down(el);
-      }
-    });
-    document.addEventListener('pointerup', function () {
-      if (current && !current.classList.contains('is-pressed')) down(current);
-      up(false);
-    });
-    document.addEventListener('pointercancel', function () { up(true); });
-    document.addEventListener('dragstart', function () { up(true); });
-    document.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      var el = document.activeElement && document.activeElement.closest && document.activeElement.closest(PRESS);
-      if (el && !current) down(el);
-    });
-    document.addEventListener('keyup', function () { up(false); });
-  })();
+  // 2–3. Нажатие и щелчок для любой ссылки и кнопки.
+  //      Если ссылка ведёт на другую страницу, переход чуть ждёт (≈0,2 с),
+  //      чтобы щелчок успел прозвучать, а кнопка — вдавиться и пружинисто вернуться.
+  var CLICKABLE = 'a[href], button, summary, [role="button"], [role="tab"]';
+  var MIN_PRESS = 100;     // сколько кнопка минимум остаётся вдавленной, мс
+  var SPRING_HOLD = 110;   // сколько видно возвращение перед переходом, мс
+  var MAX_WAIT = 380;      // дольше этого переход никогда не задерживается, мс
+  var pressOn = fxOn('press') && !reduceMotion;
+  var holdUntil = 0;
 
-  // 3. Щелчок: короткий мягкий звук, синтезируется в браузере (без файлов)
-  if (fxOn('sound')) (function () {
-    var AC = window.AudioContext || window.webkitAudioContext;
+  var sound = (function () {
     var toggle = document.querySelector('.sound');
-    if (!AC) { if (toggle) toggle.remove(); return; }
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!fxOn('sound') || !AC) { if (toggle) toggle.remove(); return null; }
     var enabled = memory('fx-sound') !== 'off';
-    var ctx = null, noise = null, lastPointer = '';
-    var TARGET = 'a[href], button, summary, [role="button"], [role="tab"]';
+    var ctx = null, noise = null, endsAt = 0, resuming = false;
 
     function context() {
       if (!ctx) {
@@ -291,28 +259,26 @@
       og.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
       osc.connect(og); og.connect(out);
       osc.start(t); osc.stop(t + 0.06);
+      endsAt = Math.max(endsAt, t + 0.06);
     }
     function play(kind, force) {
       if ((!enabled && !force) || !context()) return;
       if (ctx.state === 'running') { synth(kind); return; }
       var p = ctx.resume && ctx.resume();
-      if (p && p.then) p.then(function () { if (ctx.state === 'running') synth(kind); }, function () {});
+      if (p && p.then) {
+        resuming = true;
+        p.then(function () { resuming = false; if (ctx.state === 'running') synth(kind); },
+               function () { resuming = false; });
+      }
     }
-
-    // мышь: щелчок при нажатии и тихий «отпуск»; телефон: щелчок при касании (не при прокрутке)
-    document.addEventListener('pointerdown', function (e) {
-      lastPointer = e.pointerType || 'mouse';
-      if (lastPointer === 'touch' || e.button !== 0 || !e.target.closest || !e.target.closest(TARGET)) return;
-      play('down');
-    }, true);
-    document.addEventListener('pointerup', function (e) {
-      if (lastPointer === 'touch' || e.button !== 0 || !e.target.closest || !e.target.closest(TARGET)) return;
-      play('up');
-    }, true);
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest || !e.target.closest(TARGET) || e.target.closest('.sound')) return;
-      if (e.detail === 0 || lastPointer === 'touch') play('down');
-    }, true);
+    // Звук ещё звучит (или аудио только запускается) — со страницы пока не уходим
+    function busy() {
+      if (!ctx) return false;
+      if (resuming) return true;
+      if (ctx.state !== 'running') return false;
+      var latency = ctx.outputLatency || ctx.baseLatency || 0.02;
+      return ctx.currentTime < endsAt + latency;
+    }
 
     if (toggle) {
       var paint = function () { toggle.setAttribute('aria-pressed', enabled ? 'true' : 'false'); };
@@ -325,5 +291,100 @@
         if (enabled) play('down', true);
       });
     }
+    return { play: play, busy: busy };
   })();
+
+  if (pressOn) root.classList.add('fx-press');
+
+  var pressed = null, pressedAt = 0, touchTimer = 0, pointerType = 'mouse', sounded = false;
+
+  function pressDown(el) {
+    pressedAt = Date.now();
+    holdUntil = Math.max(holdUntil, pressedAt + MIN_PRESS + SPRING_HOLD);
+    if (!pressOn) return;
+    el.classList.toggle('is-inline', getComputedStyle(el).display === 'inline');
+    el.classList.add('is-pressed');
+  }
+  function pressUp(el, instant) {
+    var wait = instant ? 0 : Math.max(0, MIN_PRESS - (Date.now() - pressedAt));
+    if (!instant) holdUntil = Math.max(holdUntil, Date.now() + wait + SPRING_HOLD);
+    setTimeout(function () { el.classList.remove('is-pressed'); }, wait);
+  }
+  function cancel() {
+    clearTimeout(touchTimer);
+    if (pressed) { pressUp(pressed, true); pressed = null; }
+  }
+
+  document.addEventListener('pointerdown', function (e) {
+    pointerType = e.pointerType || 'mouse';
+    if (e.button !== 0 || !e.target.closest) return;
+    var el = e.target.closest(CLICKABLE);
+    if (!el) return;
+    cancel();
+    pressed = el;
+    sounded = false;
+    if (pointerType === 'touch') {
+      // на телефоне ждём чуть-чуть: вдруг это не нажатие, а прокрутка
+      touchTimer = setTimeout(function () { if (pressed === el) pressDown(el); }, 70);
+    } else {
+      pressDown(el);
+      if (sound) { sound.play('down'); sounded = true; }
+    }
+  }, true);
+
+  document.addEventListener('pointerup', function (e) {
+    clearTimeout(touchTimer);
+    var el = pressed;
+    if (!el) return;
+    pressed = null;
+    if (!el.classList.contains('is-pressed')) pressDown(el);
+    if (sound && pointerType !== 'touch' && e.target.closest && e.target.closest(CLICKABLE) === el) sound.play('up');
+    pressUp(el, false);
+  }, true);
+
+  document.addEventListener('pointercancel', cancel, true);
+  document.addEventListener('dragstart', cancel, true);
+
+  // Клавиатура: Enter или пробел на ссылке или кнопке
+  document.addEventListener('keydown', function (e) {
+    if ((e.key !== 'Enter' && e.key !== ' ') || e.repeat) return;
+    var el = document.activeElement && document.activeElement.closest && document.activeElement.closest(CLICKABLE);
+    if (el && !pressed) { pressed = el; pressDown(el); }
+  });
+  document.addEventListener('keyup', function () {
+    if (pressed) { pressUp(pressed, false); pressed = null; }
+  });
+
+  // Телефон и клавиатура: щелчок звучит в момент нажатия (а не при прокрутке)
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest && e.target.closest(CLICKABLE);
+    if (!el) return;
+    if (sound && !sounded && !el.closest('.sound')) sound.play('down');
+    sounded = false;
+  }, true);
+
+  // Переход на другую страницу — после щелчка и анимации
+  document.addEventListener('click', function (e) {
+    if ((!pressOn && !sound) || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+    var url;
+    try { url = new URL(a.href, location.href); } catch (err) { return; }
+    if (!/^https?:$/.test(url.protocol)) return;
+    if (url.origin === location.origin && url.pathname === location.pathname && url.search === location.search && url.hash) return;
+    e.preventDefault();
+    var started = Date.now();
+    (function go() {
+      var waiting = Date.now() < holdUntil || (sound && sound.busy());
+      if (waiting && Date.now() - started < MAX_WAIT) { setTimeout(go, 16); return; }
+      location.href = a.href;
+    })();
+  });
+
+  // Возврат кнопкой «Назад»: убираем «застрявшее» нажатие
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    holdUntil = 0;
+    document.querySelectorAll('.is-pressed').forEach(function (el) { el.classList.remove('is-pressed'); });
+  });
 })();
