@@ -429,6 +429,16 @@ collections:
             hint: 'Сними галочку, чтобы выключить эффект на всём сайте.'
             fields:
               - { label: Вращение блоков при прокрутке, name: wheel, widget: boolean, default: true, required: false }
+              - label: Сила изгиба при прокрутке
+                name: wheel_strength
+                widget: select
+                required: false
+                default: light
+                options:
+                  - { label: Едва заметно, value: subtle }
+                  - { label: Слегка, value: light }
+                  - { label: Средне, value: medium }
+                  - { label: Сильно, value: strong }
               - { label: Щелчок при нажатии, name: sound, widget: boolean, default: true, required: false }
               - { label: Анимация нажатия кнопок, name: press, widget: boolean, default: true, required: false }
 

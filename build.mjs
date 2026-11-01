@@ -367,7 +367,7 @@ function layout(lang, { title, description, active, body, path: pagePath = '' })
   const switcher = LANGS.map((l) => `<a href="${link(pagePath, l)}" lang="${l}" hreflang="${l}"${l === lang ? ' aria-current="true"' : ''}>${l.toUpperCase()}</a>`)
     .join('');
   return `<!doctype html>
-<html lang="${lang}" data-fx="${fx.join(' ')}">
+<html lang="${lang}" data-fx="${fx.join(' ')}" data-fx-strength="${esc((site.effects && site.effects.wheel_strength) || 'light')}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">

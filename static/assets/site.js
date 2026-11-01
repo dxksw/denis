@@ -94,9 +94,17 @@
   if (fxOn('wheel') && !reduceMotion && window.requestAnimationFrame) (function () {
     var main = document.getElementById('main');
     if (!main) return;
-    var EDGE = 56 * Math.PI / 180;   // наклон у края экрана
-    var BAND = 0.1;                   // ровная полоса в центре: ±10% высоты экрана
-    var MIN_OPACITY = 0.3;            // насколько бледнеет край
+    // Сила изгиба выбирается в админке: [наклон у края экрана, ровная полоса в центре, бледность края]
+    var LEVELS = {
+      subtle: [12, 0.18, 0.88],   // едва заметно
+      light:  [20, 0.15, 0.75],   // слегка (по умолчанию)
+      medium: [35, 0.12, 0.5],    // средне
+      strong: [56, 0.1, 0.3]      // сильно
+    };
+    var level = LEVELS[root.getAttribute('data-fx-strength')] || LEVELS.light;
+    var EDGE = level[0] * Math.PI / 180;
+    var BAND = level[1];
+    var MIN_OPACITY = level[2];
     var BLOCK = /^(block|flex|grid|list-item|table|flow-root|inline-block|inline-flex|inline-grid)$/;
     var WHOLE = 'a, button, summary, label, input, select, textarea, details, [role="button"], [role="tab"], li, table, svg, img, video, iframe, canvas, pre, .scroll-x, .ornament';
     var facets = [], splits = [];
