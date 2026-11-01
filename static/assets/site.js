@@ -87,106 +87,249 @@
     return null;
   }
 
-  // 1. «Барабан»: чем дальше блок от центра экрана, тем сильнее он повёрнут и сужен.
-  //    Верх и низ страницы остаются ровными — первый экран всегда выглядит аккуратно.
+  // 1. «Барабан»: страница лежит на поверхности цилиндра.
+  //    Центр экрана ровный, выше и ниже страница плавно загибается дугой.
+  //    Текст режется на строки, поэтому изгиб гладкий, а не кусками.
+  //    Вверху и внизу страницы всё ровно — первый экран выглядит аккуратно.
   if (fxOn('wheel') && !reduceMotion && window.requestAnimationFrame) (function () {
     var main = document.getElementById('main');
     if (!main) return;
-    var MAX_ANGLE = 32;      // наибольший наклон, градусы
-    var MIN_SCALE = 0.9;     // насколько сужается блок у края экрана
-    var MIN_OPACITY = 0.5;   // насколько бледнеет блок у края экрана
-    var FLAT = 0.2;          // ровная зона в центре экрана (доля от половины высоты)
+    var EDGE = 56 * Math.PI / 180;   // наклон у края экрана
+    var BAND = 0.1;                   // ровная полоса в центре: ±10% высоты экрана
+    var MIN_OPACITY = 0.3;            // насколько бледнеет край
     var BLOCK = /^(block|flex|grid|list-item|table|flow-root|inline-block|inline-flex|inline-grid)$/;
-    var items = [], vh = 0, docMax = 0, frameQueued = false, measureQueued = false;
+    var WHOLE = 'a, button, summary, label, input, select, textarea, details, [role="button"], [role="tab"], li, table, svg, img, video, iframe, canvas, pre, .scroll-x, .ornament';
+    var facets = [], splits = [];
+    var vh = 0, vw = 0, P = 0, R = 0, horizon = 0, docMax = 0, splitWidth = 0;
+    var frameQueued = false, measureQueued = false, forceSplit = false, noSplit = false;
 
-    function ownText(el) {
-      for (var n = el.firstChild; n; n = n.nextSibling) {
-        if (n.nodeType === 3 && /\S/.test(n.nodeValue)) return true;
+    function translated() { return /translated-/.test(root.className); }
+
+    // ---------- строки ----------
+    function wrapWords(el) {
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+      var texts = [];
+      while (walker.nextNode()) texts.push(walker.currentNode);
+      texts.forEach(function (t) {
+        if (!/\S/.test(t.nodeValue)) return;
+        var frag = document.createDocumentFragment();
+        t.nodeValue.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          var w = document.createElement('span');
+          w.className = 'wd';
+          w.textContent = part;
+          frag.appendChild(w);
+        });
+        t.parentNode.replaceChild(frag, t);
+      });
+    }
+    function unwrap(node) {
+      while (node.firstChild) node.parentNode.insertBefore(node.firstChild, node);
+      node.parentNode.removeChild(node);
+    }
+    function splitLines(el, lineHeight) {
+      var html = el.innerHTML;
+      wrapWords(el);
+      var words = el.querySelectorAll('span.wd');
+      var starts = [], lastTop = null, ok = words.length > 1;
+      for (var i = 0; ok && i < words.length; i++) {
+        var rects = words[i].getClientRects();
+        if (rects.length > 1) { ok = false; break; }
+        if (!rects.length) continue;
+        if (lastTop === null || rects[0].top > lastTop + lineHeight * 0.5) { starts.push(words[i]); lastTop = rects[0].top; }
+      }
+      if (!ok || starts.length < 2) { el.innerHTML = html; return false; }
+      var range = document.createRange(), lines = [];
+      for (var k = 1; k < starts.length; k++) {
+        range.setStart(el, 0);
+        range.setEndBefore(starts[k]);
+        lines.push(range.extractContents());
+      }
+      range.selectNodeContents(el);
+      lines.push(range.extractContents());
+      lines.forEach(function (frag) {
+        var ln = document.createElement('span');
+        ln.className = 'ln';
+        ln.appendChild(frag);
+        el.appendChild(ln);
+      });
+      Array.prototype.slice.call(el.querySelectorAll('span.wd')).forEach(unwrap);
+      // пустые «осколки» ссылок и выделений на стыке строк
+      Array.prototype.slice.call(el.querySelectorAll('.ln *')).forEach(function (n) {
+        if (n.parentNode && !/^(IMG|BR|svg|SVG|INPUT)$/.test(n.tagName) && !n.textContent && !n.querySelector('img, svg, br')) n.parentNode.removeChild(n);
+      });
+      el.normalize();
+      splits.push({ el: el, html: html });
+      return true;
+    }
+    function restoreLines() {
+      splits.forEach(function (s) { s.el.innerHTML = s.html; });
+      splits = [];
+    }
+
+    // ---------- из чего состоит барабан ----------
+    function painted(cs) {
+      if (cs.backgroundImage !== 'none' || cs.boxShadow !== 'none') return 2;
+      var bg = cs.backgroundColor;
+      if (bg && bg !== 'transparent' && !/,\s*0\)$/.test(bg)) return 2;
+      var sides = 0;
+      ['Top', 'Right', 'Bottom', 'Left'].forEach(function (s) {
+        if (parseFloat(cs['border' + s + 'Width']) > 0 && cs['border' + s + 'Style'] !== 'none') sides++;
+      });
+      return sides >= 3 ? 2 : sides ? 1 : 0;
+    }
+    function pseudo(el) {
+      var b = getComputedStyle(el, '::before').content, a = getComputedStyle(el, '::after').content;
+      return (b && b !== 'none' && b !== 'normal') || (a && a !== 'none' && a !== 'normal');
+    }
+    function blockChildren(el) {
+      for (var c = el.firstElementChild; c; c = c.nextElementSibling) {
+        var d = getComputedStyle(c).display;
+        if (d !== 'none' && (BLOCK.test(d) || d === 'contents')) return true;
       }
       return false;
     }
-    // Делим страницу на блоки не выше ~40% экрана: высокие разделы разбираем на части
-    function collect(el, out, limit) {
-      for (var i = 0; i < el.children.length; i++) {
-        var c = el.children[i];
-        if (/^(SCRIPT|STYLE|TEMPLATE|BR)$/.test(c.tagName)) continue;
-        var d = getComputedStyle(c).display;
-        if (d === 'contents') { collect(c, out, limit); continue; }
-        if (!BLOCK.test(d)) continue;
+    function ownText(el) {
+      for (var n = el.firstChild; n; n = n.nextSibling) if (n.nodeType === 3 && /\S/.test(n.nodeValue)) return true;
+      return false;
+    }
+    function collect(el, out) {
+      for (var c = el.firstElementChild; c; c = c.nextElementSibling) {
+        if (/^(SCRIPT|STYLE|TEMPLATE|BR|NOSCRIPT)$/.test(c.tagName)) continue;
+        var cs = getComputedStyle(c);
+        if (cs.display === 'none') continue;
+        if (cs.display === 'contents') { collect(c, out); continue; }
+        if (!BLOCK.test(cs.display)) continue;
         var h = c.getBoundingClientRect().height;
         if (!h) continue;
-        var leaf = /^(TABLE|svg|IMG|FIGURE|PRE)$/.test(c.tagName) || !c.children.length || ownText(c);
-        if (h > limit && !leaf) {
-          var before = out.length;
-          collect(c, out, limit);
-          if (out.length === before) out.push(c);
-        } else {
-          out.push(c);
+        var paint = painted(cs);
+        if (paint === 2 || (paint === 1 && h <= vh * 0.35) || c.matches(WHOLE) || pseudo(c) || cs.position === 'fixed' || cs.position === 'sticky') { out.push(c); continue; }
+        if (!blockChildren(c)) {
+          var lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.4;
+          if (!noSplit && h > lh * 1.6 && splitLines(c, lh)) {
+            for (var l = c.firstElementChild; l; l = l.nextElementSibling) out.push(l);
+          } else {
+            out.push(c);
+          }
+          continue;
         }
+        if (ownText(c)) { out.push(c); continue; }
+        collect(c, out);
       }
     }
 
+    // ---------- замер ----------
     function measure() {
       measureQueued = false;
       vh = window.innerHeight || root.clientHeight;
+      vw = root.clientWidth;
+      var half = vh / 2, rest = half - BAND * vh;
+      P = Math.max(600, vh * 1.1);
+      var den = P * Math.sin(EDGE) - rest * (1 - Math.cos(EDGE));
+      R = den > 0 ? rest * P / den : rest / EDGE;
+      horizon = Math.acos(R / (P + R));
+      if (translated() && !noSplit) { noSplit = true; forceSplit = true; }
       root.classList.add('fx-measure');
+      if (forceSplit || (splits.length && vw !== splitWidth)) restoreLines();
+      forceSplit = false;
+      splitWidth = vw;
+
       var found = [];
-      collect(main, found, vh * 0.4);
-      var footer = document.querySelector('.site-footer');
-      if (footer) found.push(footer);
+      var bar = document.querySelector('.topbar'), head = document.querySelector('.site-header'), foot = document.querySelector('.site-footer');
+      if (bar) found.push(bar);
+      if (head) found.push(head);
+      collect(main, found);
+      if (foot) found.push(foot);
+
       var sy = window.pageYOffset;
-      var next = found.map(function (el) {
+      var old = facets;
+      facets = found.map(function (el) {
         var r = el.getBoundingClientRect();
-        return { el: el, c: r.top + sy + r.height / 2, h: r.height, on: false };
+        return { el: el, top: r.top + sy, h: r.height, left: r.left, on: false };
       });
       root.classList.remove('fx-measure');
-      items.forEach(function (it) {
-        if (found.indexOf(it.el) === -1) {
-          it.el.style.transform = '';
-          it.el.style.opacity = '';
-          it.el.removeAttribute('data-wheel');
+      old.forEach(function (f) {
+        if (found.indexOf(f.el) === -1 && f.el.isConnected) {
+          f.el.style.transform = f.el.style.opacity = f.el.style.visibility = '';
+          f.el.removeAttribute('data-facet');
         }
       });
-      next.forEach(function (it) {
-        it.on = !!it.el.style.transform;
-        it.el.setAttribute('data-wheel', '');
+      facets.forEach(function (f) {
+        f.on = !!f.el.style.transform;
+        f.el.setAttribute('data-facet', '');
       });
-      items = next;
       docMax = Math.max(0, root.scrollHeight - vh);
       update();
     }
 
+    // ---------- кадр ----------
+    function reset(f) {
+      if (!f.on) return;
+      f.el.style.transform = f.el.style.opacity = f.el.style.visibility = '';
+      f.on = false;
+    }
     function update() {
       frameQueued = false;
-      var sy = window.pageYOffset, half = vh / 2;
-      var shortPage = docMax < vh * 0.25;
-      var persp = Math.round(Math.max(700, vh * 1.1));
-      for (var i = 0; i < items.length; i++) {
-        var it = items[i];
-        var rel = it.c - sy - half;
-        if (Math.abs(rel) - it.h / 2 > vh * 0.9) continue; // далеко за экраном
-        var a = 0;
-        if (!shortPage) {
-          var t = rel / half;
-          var lo = (it.c - half) / half;            // положение блока, когда страница в самом верху
-          var hi = (it.c - docMax - half) / half;   // положение блока, когда страница в самом низу
-          if (lo < 0) t -= lo; else if (hi > 0) t -= hi;
-          var x = Math.min(1, Math.max(0, (Math.abs(t) - FLAT) / (1 - FLAT)));
-          a = (t < 0 ? -1 : 1) * x * x * (3 - 2 * x);
-          a *= Math.min(1, (vh * 0.5) / it.h); // высокие блоки наклоняем меньше
-        }
-        if (Math.abs(a) < 0.003) {
-          if (it.on) { it.el.style.transform = ''; it.el.style.opacity = ''; it.on = false; }
+      var s = window.pageYOffset, half = vh / 2, band = BAND * vh, rest = half - band;
+      var upper = Math.min(rest, s);                     // линия изгиба сверху (на экране)
+      var lower = vh - Math.min(rest, docMax - s);       // линия изгиба снизу
+      var reach = R * horizon + rest + vh * 0.1;
+      var cx = vw / 2;
+      for (var i = 0; i < facets.length; i++) {
+        var f = facets[i];
+        var yc = f.top + f.h / 2 - s;
+        if (Math.abs(yc - half) - f.h / 2 > reach) { reset(f); continue; }
+        var d = yc < upper ? upper - yc : yc > lower ? yc - lower : 0;
+        if (d <= 0) { reset(f); continue; }
+        var phi = d / R;
+        if (phi >= horizon) {
+          if (f.el.style.visibility !== 'hidden') { f.el.style.visibility = 'hidden'; f.on = true; }
           continue;
         }
-        var k = Math.abs(a);
-        it.el.style.transform = 'perspective(' + persp + 'px) rotateX(' + (-a * MAX_ANGLE).toFixed(2) + 'deg) scale(' + (1 - (1 - MIN_SCALE) * k).toFixed(4) + ')';
-        it.el.style.opacity = (1 - (1 - MIN_OPACITY) * k).toFixed(3);
-        it.on = true;
+        var up = yc < upper;
+        var Y = up ? upper - R * Math.sin(phi) : lower + R * Math.sin(phi);
+        var Z = -R * (1 - Math.cos(phi));
+        var tilt = (up ? phi : -phi) * Math.min(1, (vh * 0.6) / f.h);
+        var ox = cx - f.left, oy = half - (yc - f.h / 2);
+        f.el.style.transform =
+          'translate(' + ox.toFixed(1) + 'px,' + oy.toFixed(1) + 'px) perspective(' + P.toFixed(0) + 'px) ' +
+          'translate3d(0,' + (Y - half).toFixed(2) + 'px,' + Z.toFixed(2) + 'px) rotateX(' + tilt.toFixed(4) + 'rad) ' +
+          'translate(' + (-ox).toFixed(1) + 'px,' + (-f.h / 2).toFixed(1) + 'px)';
+        var k = Math.min(1, phi / EDGE);
+        f.el.style.opacity = (1 - (1 - MIN_OPACITY) * k * k).toFixed(3);
+        f.el.style.visibility = '';
+        f.on = true;
       }
     }
 
-    function onScroll() { if (!frameQueued) { frameQueued = true; requestAnimationFrame(update); } }
+    // ---------- гладкая прокрутка колесом и тачпадом ----------
+    // Страница едет плавно, а барабан пересчитывается в том же кадре — без рывков.
+    var target = 0, current = 0, gliding = false, lastTime = 0;
+    function glide(now) {
+      var dt = Math.max(1, Math.min(48, now - lastTime));
+      lastTime = now;
+      current += (target - current) * (1 - Math.exp(-dt / 70));
+      if (Math.abs(target - current) < 0.5) current = target;
+      window.scrollTo(0, current);
+      update();
+      if (current !== target) requestAnimationFrame(glide);
+      else gliding = false;
+    }
+    window.addEventListener('wheel', function (e) {
+      if (e.ctrlKey || e.defaultPrevented || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      var dy = e.deltaY * (e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? vh * 0.9 : 1);
+      if (!dy) return;
+      e.preventDefault();
+      if (!gliding) { current = target = window.pageYOffset; }
+      target = Math.max(0, Math.min(docMax, target + dy));
+      if (!gliding) { gliding = true; lastTime = performance.now(); requestAnimationFrame(glide); }
+    }, { passive: false });
+
+    function onScroll() {
+      if (gliding) return;
+      if (!frameQueued) { frameQueued = true; requestAnimationFrame(update); }
+    }
     function remeasure() { if (!measureQueued) { measureQueued = true; requestAnimationFrame(measure); } }
 
     root.classList.add('fx-wheel');
@@ -197,8 +340,11 @@
     document.addEventListener('click', function (e) {
       if (e.target.closest && e.target.closest('[data-tab], [data-filter]')) remeasure();
     });
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { forceSplit = true; remeasure(); });
     if (window.ResizeObserver) new ResizeObserver(remeasure).observe(main);
+    // Если браузер переводит страницу — возвращаем абзацы целиком, чтобы перевод был по предложениям
+    if (window.MutationObserver) new MutationObserver(function () { if (translated() && !noSplit) remeasure(); })
+      .observe(root, { attributes: true, attributeFilter: ['class'] });
     measure();
   })();
 

@@ -365,7 +365,7 @@ function layout(lang, { title, description, active, body, path: pagePath = '' })
     ? `<button type="button" class="sound" aria-pressed="true" aria-label="${esc(t('common.sound', lang))}" title="${esc(t('common.sound', lang))}" hidden>${SPEAKER}</button>`
     : '';
   const switcher = LANGS.map((l) => `<a href="${link(pagePath, l)}" lang="${l}" hreflang="${l}"${l === lang ? ' aria-current="true"' : ''}>${l.toUpperCase()}</a>`)
-    .join('<span aria-hidden="true">/</span>');
+    .join('');
   return `<!doctype html>
 <html lang="${lang}" data-fx="${fx.join(' ')}">
 <head>
@@ -392,7 +392,7 @@ ${alternates}` : ''}
   <div class="site-header__inner">
     <div class="tools">
       ${soundBtn}
-      <nav class="lang" aria-label="${esc(t('common.lang', lang))}">${GLOBE}${switcher}</nav>
+      <nav class="lang" aria-label="${esc(t('common.lang', lang))}">${GLOBE}<span class="seg">${switcher}</span></nav>
     </div>
     <a class="brand" href="${link('', lang)}"${active === 'home' ? ' aria-current="page"' : ''}>
       <span class="monogram" aria-hidden="true">${esc(tr(site, 'initials', lang))}</span>

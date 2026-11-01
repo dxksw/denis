@@ -311,66 +311,181 @@ main { flex: 1; }
 .site-footer__name { font-family: var(--serif); font-size: 21px; }
 .site-footer__meta { font-size: 14px; color: var(--muted); }
 
-/* ── Анимации: нажатие кнопок и «барабан» при прокрутке ── */
+/* ══════════════════ Объём (3D) ══════════════════
+   Кнопки — как клавиши: стоят на «подставке» и вдавливаются в неё.
+   Карточки — приподнятые плашки с мягкой тенью. */
+:root {
+  --paper: #F4F6F9;
+  --face: linear-gradient(180deg, #FFFFFF 0%, #F1F4F8 100%);
+  --face-hover: linear-gradient(180deg, #FFFFFF 0%, #F6F8FB 100%);
+  --face-solid: linear-gradient(180deg, #3A6194 0%, #234470 52%, #1C385C 100%);
+  --rim: #CFD8E3;
+  --elev: 0 1px 2px rgba(15, 31, 51, .05), 0 6px 14px -6px rgba(15, 31, 51, .12), 0 22px 40px -24px rgba(15, 31, 51, .28);
+  --elev-hover: 0 1px 2px rgba(15, 31, 51, .05), 0 10px 20px -8px rgba(15, 31, 51, .16), 0 30px 50px -26px rgba(15, 31, 51, .34);
+  --r-sm: 12px;
+  --r: 16px;
+  --r-lg: 22px;
+}
+body { background: var(--paper); }
+.site-header { background: #fff; border-bottom: 0; box-shadow: 0 1px 0 rgba(15, 31, 51, .07), 0 12px 30px -20px rgba(15, 31, 51, .35); position: relative; z-index: 2; }
+.site-footer { border-top: 0; background: #fff; box-shadow: 0 -1px 0 rgba(15, 31, 51, .06); }
+
+/* Монограмма — объёмная «монета» */
+.monogram {
+  border: 1.5px solid var(--accent);
+  background: radial-gradient(circle at 32% 26%, #FFFFFF 0%, #F1F4F8 52%, #DCE3EC 100%);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgba(15, 31, 51, .14), 0 3px 0 #BFCAD7, 0 7px 12px -5px rgba(15, 31, 51, .35);
+}
+
+/* Переключатель языка — «ложбинка» с выпуклой активной кнопкой */
+.lang .seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: #E7EBF1; box-shadow: inset 0 2px 4px rgba(15, 31, 51, .16), 0 1px 0 #fff; }
+.lang a { min-width: 44px; min-height: 34px; border-radius: 999px; padding: 0 10px; }
+.lang a[aria-current="true"] {
+  text-decoration: none; color: var(--accent);
+  background: var(--face);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 0 #C3CDD9, 0 4px 8px -3px rgba(15, 31, 51, .35);
+}
+
+/* ── Клавиши: общая геометрия ── */
+.btn, .chip, .tile, .section-link, .summary-link, .season-link, .sound {
+  --lift: 6px;
+  --edge: #C3CEDB;
+  --drop: rgba(15, 31, 51, .3);
+  --inset: rgba(15, 31, 51, .2);
+  --hi: rgba(255, 255, 255, .95);
+  position: relative;
+  background: var(--face);
+  border: 1px solid var(--rim);
+  box-shadow: inset 0 1px 0 var(--hi), 0 var(--lift) 0 var(--edge), 0 calc(var(--lift) + 8px) 18px -10px var(--drop), inset 0 0 0 transparent;
+}
+@media (hover: hover) {
+  .btn:hover, .chip:hover, .tile:hover, .section-link:hover, .summary-link:hover, .season-link:hover, .sound:hover {
+    background: var(--face-hover);
+    translate: 0 -2px;
+    box-shadow: inset 0 1px 0 var(--hi), 0 calc(var(--lift) + 2px) 0 var(--edge), 0 calc(var(--lift) + 14px) 24px -12px var(--drop), inset 0 0 0 transparent;
+  }
+}
+/* Нажатая клавиша (и выбранная вкладка — она «защёлкнута» внизу) */
+.fx-press :is(.btn, .chip, .tile, .section-link, .summary-link, .season-link, .sound).is-pressed,
+.chip[aria-current="true"], .chip[aria-pressed="true"], .tile[aria-current="true"] {
+  translate: 0 var(--lift);
+  scale: 1;
+  box-shadow: inset 0 1px 0 transparent, 0 0 0 var(--edge), 0 1px 3px -2px var(--drop), inset 0 3px 10px var(--inset);
+}
+.fx-press :is(.btn, .chip, .tile, .section-link, .summary-link, .season-link, .sound).is-pressed { filter: brightness(.97); }
+
+/* Кнопки */
+.btn { border-radius: 14px; min-height: 50px; padding: 13px 28px; color: var(--accent); }
+.btn:hover { color: var(--accent-dark); }
+.btn--solid {
+  --edge: #0D1B2E; --drop: rgba(15, 31, 51, .55); --inset: rgba(0, 0, 0, .5); --hi: rgba(255, 255, 255, .25);
+  background: var(--face-solid); border-color: #16304F; color: #fff; text-shadow: 0 -1px 0 rgba(0, 0, 0, .3);
+}
+@media (hover: hover) { .btn--solid:hover { background: var(--face-solid); color: #fff; filter: brightness(1.08); } }
+.btn--small { min-height: 44px; padding: 10px 20px; border-radius: 12px; --lift: 4px; }
+.btn-row { gap: 18px; padding-bottom: 8px; }
+
+/* Вкладки-фильтры: таблетки */
+.chip { --lift: 4px; border-radius: 999px; padding: 10px 20px; color: var(--ink-2); }
+.chip:hover { color: var(--accent); border-color: var(--rim); }
+.chip[aria-current="true"], .chip[aria-pressed="true"] {
+  --edge: #0D1B2E; --inset: rgba(0, 0, 0, .5);
+  background: var(--face-solid); border-color: #16304F; color: #fff;
+}
+.filters { gap: 12px; padding-bottom: 6px; }
+
+/* Плитки достижений */
+.tiles { gap: 16px; padding-bottom: 8px; }
+.tile { border-radius: var(--r); border-top: 1px solid var(--rim); padding: 18px 20px; }
+.tile:hover { border-top-color: var(--rim); }
+.tile[aria-current="true"] { background: linear-gradient(180deg, #EEF2F7, #F6F8FB); border-top-color: var(--rim); --inset: rgba(15, 31, 51, .22); }
+.tile[aria-current="true"] .tile__name { color: var(--accent); }
+
+/* Четыре раздела на главной — объёмные карточки */
+.sections { gap: 22px; border-bottom: 0; }
+.section-link {
+  --lift: 7px;
+  align-items: center; gap: 20px; padding: 24px 26px; border-radius: var(--r-lg); border-top: 1px solid var(--rim);
+}
+.section-link .roman { width: 52px; height: 52px; font-size: 20px; }
+
+/* Ссылки-плашки (итоги, сезон) */
+.summary-link, .season-link { --lift: 5px; border-radius: var(--r-lg); }
+.season-link { border-top: 1px solid var(--rim); }
+
+/* Значок звука — маленькая круглая клавиша */
+.sound { --lift: 3px; width: 38px; height: 38px; border-radius: 50%; }
+.sound:hover { background: var(--face-hover); }
+
+/* ── Приподнятые плашки (не кнопки) ── */
+.card, .info-box, .record, .skill, .pub, .note-box, .row, .goal, .notice, .also, .note-link, .side-head, .two-col__side .facts, .two-col__side .socials, .chart-box > .scroll-x {
+  background: #fff;
+  border: 1px solid #E1E7EE;
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev);
+}
+.card { border-top: 1px solid #E1E7EE; box-shadow: inset 0 3px 0 var(--accent), var(--elev); }
+.card--plain { box-shadow: var(--elev); }
+.info-box--soft { background: linear-gradient(180deg, #FFFFFF, #F7F9FC); border-top: 1px solid #E1E7EE; box-shadow: inset 0 3px 0 var(--accent), var(--elev); }
+.pub { padding: 24px 28px; }
+.records { gap: 16px; border: 0; }
+.record { border: 1px solid #E1E7EE; }
+/* Высокие блоки собраны из отдельных плашек — барабан гнёт их плавно, а не одним куском */
+.rows, .goals { border-top: 0; display: flex; flex-direction: column; gap: 12px; }
+.row { padding: 16px 22px; border-radius: var(--r); }
+.goal { padding: 16px 20px; border-radius: var(--r); align-items: center; }
+.goal .roman, .section-link .roman {
+  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex: none;
+  background: radial-gradient(circle at 32% 26%, #FFFFFF 0%, #EEF2F7 55%, #D9E1EB 100%);
+  border: 1px solid var(--rim);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgba(15, 31, 51, .12), 0 2px 0 #C3CEDB, 0 5px 10px -4px rgba(15, 31, 51, .3);
+}
+.goal .roman { width: 40px; height: 40px; font-size: 17px; }
+.two-col__side { background: none; border: 0; box-shadow: none; padding: 0; gap: 16px; }
+.side-head, .two-col__side .facts, .two-col__side .socials { padding: 20px 22px; border-top: 1px solid #E1E7EE; }
+.chart-box { background: none; border: 0; box-shadow: none; padding: 0; gap: 16px; }
+.chart-box > .scroll-x { padding: 22px; }
+.note-box, .notice, .also, .note-link { border-radius: var(--r); }
+.note-link { background: linear-gradient(180deg, #FFFFFF, #F7F9FC); }
+/* «Точка ноль»: вместо одной большой панели — отдельные плашки */
+.panel-soft { padding: 0; background: none; border-top: 0; gap: 24px; }
+.panel-soft > .stack-sm { padding-left: 18px; border-left: 3px solid var(--accent); }
+.tag { border-radius: 999px; padding: 3px 12px; }
+.shot, .portrait { border-radius: var(--r-sm); overflow: hidden; box-shadow: var(--elev); }
+.prose img { border-radius: var(--r-sm); }
+@media (max-width: 640px) {
+  .row, .goal { padding: 14px 16px; }
+  .chart-box > .scroll-x { padding: 16px; }
+  .section-link { padding: 20px; }
+  .pub { padding: 20px; }
+}
+
+/* ── Анимации: нажатие и «барабан» ── */
 :root {
   --spring: cubic-bezier(.24, 1.7, .42, 1);   /* отпускание — с лёгкой пружинкой */
   --snap: cubic-bezier(.2, .8, .3, 1);        /* нажатие — быстро и мягко */
   --ink-rgb: 15, 31, 51;
 }
-/* Любая ссылка и кнопка: плавное пружинящее возвращение */
+/* Любая ссылка и кнопка возвращается пружинисто */
 .fx-press :is(a, button) {
   --d: .55s; --e: var(--spring);
-  transition: scale var(--d) var(--e), translate var(--d) var(--e), box-shadow var(--d) var(--e), background-color .25s, color .2s, border-color .2s;
+  transition: scale var(--d) var(--e), translate var(--d) var(--e), box-shadow var(--d) var(--e), filter .2s, background-color .25s, color .2s, border-color .2s;
 }
 .fx-press :is(a, button).is-pressed { --d: .09s; --e: var(--snap); scale: .94; translate: 0 1px; }
-/* Ссылки внутри текста: подсвечиваются, как будто на них надавили */
+/* Ссылки внутри текста подсвечиваются, будто на них надавили */
 .fx-press a.is-inline { border-radius: 3px; }
 .fx-press a.is-inline.is-pressed { background-color: rgba(var(--ink-rgb), .1); box-shadow: 0 0 0 4px rgba(var(--ink-rgb), .1); }
 
-/* Кнопки-клавиши: стоят на «подставке» и вдавливаются в неё */
-.fx-press :is(.btn, .chip, .tile) {
-  --lift: 4px;
-  --edge: #B5C0CE;
-  --glow: rgba(var(--ink-rgb), .22);
-  --inset: rgba(var(--ink-rgb), .2);
-  box-shadow: 0 var(--lift) 0 var(--edge), 0 calc(var(--lift) + 5px) 14px -8px var(--glow), inset 0 0 0 transparent;
-}
-.fx-press .btn--solid { --edge: #0A1626; --glow: rgba(var(--ink-rgb), .45); --inset: rgba(0, 0, 0, .45); }
-.fx-press .chip[aria-pressed="true"], .fx-press .chip[aria-current="true"] { --edge: #0A1626; --inset: rgba(0, 0, 0, .45); }
-.fx-press .tile[aria-current="true"] { --edge: #9FB0C5; }
-@media (hover: hover) {
-  .fx-press :is(.btn, .chip, .tile):hover {
-    translate: 0 -1px;
-    box-shadow: 0 calc(var(--lift) + 1px) 0 var(--edge), 0 calc(var(--lift) + 8px) 16px -8px var(--glow), inset 0 0 0 transparent;
-  }
-}
-.fx-press :is(.btn, .chip, .tile).is-pressed {
-  scale: 1;
-  translate: 0 var(--lift);
-  box-shadow: 0 0 0 var(--edge), 0 0 0 -8px transparent, inset 0 3px 8px var(--inset);
-}
-
-/* Строки и плашки (четыре раздела на главной, ссылки-карточки): под ними появляется «вдавленная» подложка */
-.fx-press :is(.section-link, .socials a) { position: relative; isolation: isolate; }
-.fx-press :is(.section-link, .socials a)::before {
-  content: ""; position: absolute; inset: 6px -14px; z-index: -1; pointer-events: none;
-  background: var(--soft); box-shadow: inset 0 3px 9px rgba(var(--ink-rgb), .13);
-  opacity: 0; scale: .96; transition: opacity .45s ease, scale .55s var(--spring);
-}
-.fx-press :is(.section-link, .socials a).is-pressed::before { opacity: 1; scale: 1; transition-duration: .09s; }
-.fx-press :is(.section-link, .socials a).is-pressed { scale: .985; translate: 0 2px; }
-.fx-press :is(.summary-link, .season-link, .note-link, .shot) { box-shadow: inset 0 0 0 transparent; }
-.fx-press :is(.summary-link, .season-link, .note-link, .shot).is-pressed { scale: .985; translate: 0 2px; box-shadow: inset 0 3px 10px rgba(var(--ink-rgb), .16); }
-/* Значок звука */
-.fx-press .sound.is-pressed { scale: .86; background: var(--soft-2); box-shadow: inset 0 2px 5px rgba(var(--ink-rgb), .2); }
-
-.fx-wheel main { overflow-x: clip; }
-.fx-measure [data-wheel] { transform: none !important; }
-[data-wheel] { transform-origin: 50% 50%; }
+/* Барабан */
+.fx-wheel body, .fx-wheel main { overflow-x: clip; }
+[data-facet] { transform-origin: 0 0; }
+.fx-measure [data-facet] { transform: none !important; }
+.ln { display: block; }
 
 /* ── Печать ── */
 @media print {
-  [data-wheel] { transform: none !important; opacity: 1 !important; }
+  [data-facet] { transform: none !important; opacity: 1 !important; visibility: visible !important; }
+  body { background: #fff; }
   .topbar, .nav, .tools, .lang, .btn-row, .filters, .tiles, .skip, .more { display: none !important; }
   body { font-size: 11pt; }
   a { color: inherit; }
