@@ -1,0 +1,373 @@
+# Настройки админ-панели (Sveltia CMS).
+# __REPO__, __BRANCH__ и __SITE_URL__ подставляются автоматически при сборке сайта.
+
+backend:
+  name: github
+  repo: __REPO__
+  branch: __BRANCH__
+  commit_messages:
+    create: 'Новая запись: {{collection}} / {{slug}}'
+    update: 'Правка: {{collection}} / {{slug}}'
+    delete: 'Удаление: {{collection}} / {{slug}}'
+    uploadMedia: 'Загрузка файла: {{path}}'
+    deleteMedia: 'Удаление файла: {{path}}'
+
+site_url: __SITE_URL__
+display_url: __SITE_URL__
+
+media_folder: static/uploads
+public_folder: /uploads
+
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 1600
+          height: 1600
+
+slug:
+  encoding: unicode
+  clean_accents: false
+
+collections:
+  # ───────────── Хронология ─────────────
+  - name: chronicle
+    label: Хронология
+    label_singular: запись
+    description: 'Задумки, планы, события и идеи, а также итоги квартала и года. На сайте свежие записи показываются сверху.'
+    folder: content/chronicle
+    format: json
+    extension: json
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    summary: '{{date}} · {{type}} · {{title}}'
+    sortable_fields: [date, title]
+    editor:
+      preview: false
+    fields:
+      - label: Тип записи
+        name: type
+        widget: select
+        options: [Задумка, План, Событие, Идея, Итог квартала, Итог года]
+        default: Событие
+      - label: Название
+        name: title
+        widget: string
+      - label: Дата записи
+        name: date
+        widget: datetime
+        format: YYYY-MM-DD
+        date_format: DD.MM.YYYY
+        time_format: false
+      - label: Период
+        name: period
+        widget: string
+        required: false
+        hint: 'Только для итогов. Например, «IV квартал 2026» или «2027 год».'
+      - label: Текст
+        name: body
+        widget: markdown
+      - label: Начальная точка
+        name: is_start
+        widget: boolean
+        required: false
+        default: false
+        hint: 'Включено только у самой первой записи.'
+      - label: Черновик
+        name: draft
+        widget: boolean
+        required: false
+        default: false
+        hint: 'Черновик не показывается на сайте, но виден в открытом репозитории на GitHub. Не пиши в черновиках ничего личного.'
+
+  # ───────────── Статьи ─────────────
+  - name: articles
+    label: Статьи
+    label_singular: статью
+    description: 'Исследования и мнения. Оригинал на русском, перевод на английский — по желанию.'
+    folder: content/articles
+    format: json
+    extension: json
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    summary: '{{date}} · {{category}} · {{title}}'
+    sortable_fields: [date, title]
+    editor:
+      preview: false
+    fields:
+      - label: Тема
+        name: category
+        widget: select
+        options: [Экономика, Психология и философия, Учебные исследования, Прочее]
+        default: Экономика
+      - label: Название
+        name: title
+        widget: string
+      - label: Дата публикации
+        name: date
+        widget: datetime
+        format: YYYY-MM-DD
+        date_format: DD.MM.YYYY
+        time_format: false
+      - label: Текст статьи
+        name: body
+        widget: markdown
+      - label: Где ещё можно прочитать
+        name: also_on
+        widget: list
+        required: false
+        summary: '{{fields.site}}'
+        hint: 'Ссылки на эту же статью на других сайтах. Показываются в начале статьи.'
+        fields:
+          - { label: Название сайта, name: site, widget: string }
+          - { label: Ссылка, name: url, widget: string }
+      - label: Источники
+        name: sources
+        widget: list
+        required: false
+        hint: 'Каждый источник — отдельным пунктом: автор, название, ссылка.'
+        field: { label: Источник, name: source, widget: string }
+      - label: Перевод на английский
+        name: en
+        widget: object
+        required: false
+        collapsed: true
+        hint: 'Необязательно. Если заполнить, на странице статьи появится переключатель RU / EN.'
+        fields:
+          - { label: Title (EN), name: title, widget: string, required: false }
+          - { label: Text (EN), name: body, widget: markdown, required: false }
+      - label: Черновик
+        name: draft
+        widget: boolean
+        required: false
+        default: false
+        hint: 'Черновик не показывается на сайте, но виден в открытом репозитории на GitHub.'
+
+  # ───────────── Достижения ─────────────
+  - name: achievements
+    label: Достижения
+    label_singular: достижение
+    description: 'Только то, что можно подтвердить: ссылка, документ, фото или видео.'
+    folder: content/achievements
+    format: json
+    extension: json
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    summary: '{{date}} · {{category}} · {{title}}'
+    sortable_fields: [date, title]
+    editor:
+      preview: false
+    fields:
+      - label: Раздел
+        name: category
+        widget: select
+        options: [Проекты, Учёба, Олимпиады и конкурсы, Сертификаты, Спорт]
+        default: Проекты
+      - label: Название
+        name: title
+        widget: string
+      - label: Дата публикации
+        name: date
+        widget: datetime
+        format: YYYY-MM-DD
+        date_format: DD.MM.YYYY
+        time_format: false
+      - label: Описание
+        name: description
+        widget: markdown
+        hint: 'Что сделано, какой результат и что это дало.'
+      - label: Подтверждение
+        name: proof
+        widget: object
+        fields:
+          - { label: Ссылка, name: url, widget: string, required: false, hint: 'Например, страница с результатами или сертификатом.' }
+          - { label: Подпись к ссылке, name: label, widget: string, required: false, hint: 'Например, «Протокол олимпиады». Если оставить пустым, покажется адрес сайта.' }
+          - { label: Фото или скан, name: image, widget: image, required: false }
+          - { label: Файл (PDF), name: file, widget: file, required: false }
+      - label: Черновик
+        name: draft
+        widget: boolean
+        required: false
+        default: false
+
+  # ───────────── Забеги ─────────────
+  - name: runs
+    label: Забеги
+    label_singular: забег
+    description: 'Каждый забег сам попадает в историю забегов, личные рекорды и график 5 км.'
+    folder: content/runs
+    format: json
+    extension: json
+    create: true
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    summary: '{{date}} · {{title}} · {{time}}'
+    sortable_fields: [date, title]
+    editor:
+      preview: false
+    fields:
+      - label: Название
+        name: title
+        widget: string
+        hint: 'Например, «5 вёрст» или «Контрольный забег на 5 км».'
+      - label: Дата забега
+        name: date
+        widget: datetime
+        format: YYYY-MM-DD
+        date_format: DD.MM.YYYY
+        time_format: false
+      - label: Дистанция
+        name: distance
+        widget: select
+        default: '5'
+        options:
+          - { label: 5 км, value: '5' }
+          - { label: 10 км, value: '10' }
+          - { label: 'Полумарафон (21,1 км)', value: '21.1' }
+          - { label: 'Марафон (42,2 км)', value: '42.2' }
+          - { label: Другая, value: other }
+      - label: 'Другая дистанция, км'
+        name: distance_km
+        widget: number
+        value_type: float
+        required: false
+        hint: 'Только если выбрана «Другая». Например, 3 или 7.5.'
+      - label: Время
+        name: time
+        widget: string
+        hint: 'Минуты и секунды через двоеточие: 27:45. Для долгих забегов — часы тоже: 1:58:10.'
+        pattern: ['^(\d{1,2}:)?\d{1,2}:\d{2}$', 'Формат: 27:45 или 1:58:10']
+      - label: Как записано
+        name: source
+        widget: select
+        options: [Спортивные часы, 5 вёрст, Официальный забег, Другое]
+        default: Спортивные часы
+      - label: Метка
+        name: label
+        widget: string
+        required: false
+        hint: 'Короткая пометка, например «Точка ноль». Обычно не нужна.'
+      - label: Скриншот из приложения
+        name: screenshot
+        widget: image
+        required: false
+      - label: Ссылка на протокол
+        name: protocol_url
+        widget: string
+        required: false
+        hint: 'Например, страница результатов «5 вёрст».'
+      - label: Заметка
+        name: note
+        widget: text
+        required: false
+
+  # ───────────── Страницы и настройки ─────────────
+  - name: settings
+    label: Страницы и настройки
+    format: json
+    editor:
+      preview: false
+    files:
+      - name: about
+        label: Обо мне (и навыки)
+        file: content/settings/about.json
+        fields:
+          - { label: Заголовок страницы, name: title, widget: string }
+          - { label: Моя история, name: story, widget: markdown }
+          - { label: Почему экономика, name: why, widget: markdown }
+          - label: Точка ноль
+            name: point_zero
+            widget: object
+            fields:
+              - { label: Дата, name: date, widget: string, hint: 'Например, «Ноябрь 2026».' }
+              - { label: Вступление, name: intro, widget: text }
+              - label: Показатели
+                name: rows
+                widget: list
+                summary: '{{fields.label}} — {{fields.value}}'
+                fields:
+                  - { label: Показатель, name: label, widget: string }
+                  - { label: Пояснение, name: note, widget: string, required: false }
+                  - { label: Значение, name: value, widget: string }
+              - { label: О подтверждении, name: verification, widget: text, required: false }
+          - label: Навыки
+            name: skills
+            widget: list
+            required: false
+            summary: '{{fields.name}}'
+            hint: 'Появятся на странице «Обо мне», когда добавишь первый.'
+            fields:
+              - { label: Навык, name: name, widget: string }
+              - { label: Описание, name: description, widget: text, required: false }
+              - { label: Ссылка на подтверждение, name: proof_url, widget: string, required: false }
+          - label: Цели («Куда я иду»)
+            name: goals
+            widget: list
+            field: { label: Цель, name: goal, widget: text }
+          - { label: Как я веду хронологию, name: chronicle_method, widget: text }
+          - { label: Портрет, name: portrait, widget: image, required: false }
+          - { label: Подпись под именем, name: subtitle, widget: string, required: false }
+          - label: Факты в карточке
+            name: facts
+            widget: list
+            summary: '{{fields.label}}: {{fields.value}}'
+            fields:
+              - { label: Название, name: label, widget: string }
+              - { label: Значение, name: value, widget: string }
+          - label: Где меня найти
+            name: socials
+            widget: list
+            required: false
+            summary: '{{fields.name}}'
+            hint: 'YouTube, Telegram, TikTok, почта. Блок появится, когда добавишь первую ссылку.'
+            fields:
+              - { label: Название, name: name, widget: string }
+              - { label: Ссылка, name: url, widget: string, hint: 'Для почты можно просто адрес, например name@mail.ru.' }
+              - { label: Ник или подпись, name: handle, widget: string, required: false }
+
+      - name: site
+        label: Главная и тексты разделов
+        file: content/settings/site.json
+        fields:
+          - { label: Имя, name: name, widget: string }
+          - { label: Инициалы для значка, name: initials, widget: string }
+          - { label: Строка над именем, name: kicker, widget: string }
+          - { label: Подпись под именем, name: tagline, widget: text }
+          - { label: Описание сайта для поисковиков, name: description, widget: text }
+          - label: Описания разделов на главной
+            name: sections
+            widget: object
+            fields:
+              - { label: Спорт, name: sport, widget: text }
+              - { label: Статьи, name: articles, widget: text }
+              - { label: Хронология, name: chronicle, widget: text }
+              - { label: Достижения, name: achievements, widget: text }
+          - label: Вступления в начале разделов
+            name: intros
+            widget: object
+            fields:
+              - { label: Спорт, name: sport, widget: text }
+              - { label: Статьи, name: articles, widget: text }
+              - { label: Хронология, name: chronicle, widget: text }
+              - { label: Достижения, name: achievements, widget: text }
+          - { label: Блок «Как я пишу», name: how_i_write, widget: text }
+          - { label: Блок «Как сюда попадают достижения», name: how_achievements, widget: text }
+          - { label: Пояснение к итогам года, name: year_summary_note, widget: text, required: false }
+          - { label: Подпись в подвале, name: footer_note, widget: string, required: false }
+          - { label: Год начала, name: start_year, widget: number, value_type: int }
+
+      - name: sport
+        label: Спорт — цели
+        file: content/settings/sport.json
+        fields:
+          - label: Цели по времени
+            name: goals
+            widget: object
+            hint: 'Необязательно. Пустые цели на сайте не показываются.'
+            fields:
+              - { label: 5 км, name: five_k, widget: string, required: false }
+              - { label: 10 км, name: ten_k, widget: string, required: false }
+              - { label: Полумарафон, name: half, widget: string, required: false }
+              - { label: Марафон, name: marathon, widget: string, required: false }
