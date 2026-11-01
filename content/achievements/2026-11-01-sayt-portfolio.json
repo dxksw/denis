@@ -9,5 +9,10 @@
     "image": "",
     "file": ""
   },
-  "draft": false
+  "draft": false,
+  "en": {
+    "title": "Portfolio website",
+    "description": "The website you are reading now. I built it with AI without writing code by hand: from defining the task and choosing the design to writing the texts and publishing it.",
+    "proof_label": "This website"
+  }
 }

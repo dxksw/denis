@@ -8,5 +8,10 @@
   "label": "Точка ноль",
   "screenshot": "",
   "protocol_url": "",
-  "note": ""
+  "note": "",
+  "en": {
+    "title": "5 km time trial",
+    "label": "Baseline",
+    "note": ""
+  }
 }

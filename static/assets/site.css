@@ -68,7 +68,16 @@ main { flex: 1; }
 /* ── Шапка ── */
 .topbar { height: 6px; background: var(--accent); }
 .site-header { border-bottom: 1px solid var(--line); }
-.site-header__inner { max-width: 1120px; margin: 0 auto; padding: 22px 16px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.site-header__inner { position: relative; max-width: 1120px; margin: 0 auto; padding: 22px 16px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.lang { position: absolute; top: 18px; right: 24px; display: inline-flex; align-items: center; gap: 2px; color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: .12em; }
+.lang svg { margin-right: 6px; flex: none; }
+.lang a { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; min-height: 40px; padding: 0 6px; color: var(--ink-2); }
+.lang a:hover { color: var(--accent); text-decoration: none; }
+.lang a[aria-current="true"] { color: var(--accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.lang span { color: var(--line-2); }
+@media (max-width: 760px) {
+  .lang { position: static; order: -1; align-self: flex-end; margin: -10px 0 -6px; }
+}
 .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); }
 .brand:hover { color: var(--ink); text-decoration: none; }
 .monogram { width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1.5px solid var(--accent); display: inline-flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 17px; color: var(--accent); }
@@ -233,13 +242,11 @@ main { flex: 1; }
 .sources { display: flex; flex-direction: column; gap: 8px; padding-top: 22px; border-top: 1px solid var(--line); }
 .sources h2 { margin: 0; font-family: var(--sans); }
 .sources ol { margin: 0; padding-left: 1.4em; font-size: 15px; line-height: 1.6; color: var(--ink-2); }
-.lang-switch { display: inline-flex; border: 1px solid var(--line-2); }
-.lang-switch button { min-height: 44px; padding: 10px 16px; border: 0; background: #fff; color: var(--ink-2); font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: .08em; cursor: pointer; }
-.lang-switch button + button { border-left: 1px solid var(--line-2); }
-.lang-switch button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-.translation-note { margin: 0; padding: 12px 16px; background: var(--soft); font-size: 15px; color: var(--ink-2); }
-.js [data-lang-root]:not([data-active-lang="en"]) [data-lang="en"] { display: none; }
-.js [data-lang-root][data-active-lang="en"] [data-lang="ru"] { display: none; }
+.notice { display: flex; flex-direction: column; gap: 6px; padding: 16px 20px; background: var(--soft); border: 1px solid var(--line); font-size: 16px; }
+.notice p { margin: 0; color: var(--ink-2); }
+.notice a { font-weight: 600; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.lede--center { margin: -36px auto 28px; padding: 0 16px; text-align: center; font-size: 18px; color: var(--muted); }
 .note-link { display: block; padding: 18px 22px; background: var(--soft); font-size: 16px; line-height: 1.5; }
 
 /* ── Карточки ── */
@@ -300,7 +307,7 @@ main { flex: 1; }
 
 /* ── Печать ── */
 @media print {
-  .topbar, .nav, .btn-row, .filters, .tiles, .lang-switch, .skip, .more { display: none !important; }
+  .topbar, .nav, .lang, .btn-row, .filters, .tiles, .skip, .more { display: none !important; }
   body { font-size: 11pt; }
   a { color: inherit; }
   .hero { padding: 16px 0; }

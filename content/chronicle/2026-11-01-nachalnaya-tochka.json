@@ -5,5 +5,10 @@
   "period": "",
   "body": "Привет! Сейчас мне 16 лет, я учусь на первом курсе РАНХиГС. Стараюсь подтянуть английский (сейчас мой уровень — A1), развить дисциплину в спорте, а также научиться писать статьи и добиваться первых достижений. Пока у меня нет ни статей, ни достижений, но в хронологии я буду подробно описывать каждую свою задумку, идею или событие.",
   "is_start": true,
-  "draft": false
+  "draft": false,
+  "en": {
+    "title": "Starting point",
+    "period": "",
+    "body": "Hi! I am 16 and in my first year at RANEPA. I am working on my English (my level is A1 for now), building discipline in sport, and learning to write articles and earn my first achievements. I have no articles or achievements yet, but in this chronicle I will describe every intention, idea and event in detail."
+  }
 }

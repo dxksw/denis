@@ -5,5 +5,10 @@
   "period": "",
   "body": "Сегодня, 1 ноября 2026 года я доделал свой сайт и опубликовал его в публичный доступ. Для меня это событие является очень позитивной точкой старта, так как все еще впереди и мне предстоит очень интересный путь, протяженностью в 3-5 лет. Мои задумки на ноябрь 2026: 1) Разобраться в структуре сайта, доделать недочеты и общие списки, а также разобраться, как поддерживать сайт на английском языке, так как пока что мой уровень английского А1 2) Начать разбирать свой будущий проект и детально готовиться к нему (есть некоторые идеи насчет сайта с помощью поддержки дисциплины людям)",
   "is_start": false,
-  "draft": false
+  "draft": false,
+  "en": {
+    "title": "I built my own website on GitHub with the help of AI",
+    "period": "",
+    "body": "Today, on 1 November 2026, I finished my website and made it public. For me this is a very positive starting point: everything is still ahead, and an exciting journey of three to five years lies in front of me.\n\nMy plans for November 2026:\n\n1. Get to know how the site works, fix the remaining gaps and fill in the lists, and work out how to keep the site in English — my English is still at A1.\n2. Start working on my future project and prepare for it in detail. I already have a few ideas for a website that helps people stay disciplined."
+  }
 }

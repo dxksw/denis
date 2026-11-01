@@ -1,24 +1,41 @@
 {
   "name": "Денис Галюкевич",
+  "name_en": "Denis Galyukevich",
   "initials": "ДГ",
+  "initials_en": "DG",
   "kicker": "Портфолио и хронология · с ноября 2026",
+  "kicker_en": "Portfolio & Chronicle · since November 2026",
   "tagline": "Летопись учёбы, дисциплины и роста на пути к экономическому факультету университета в США или Канаде.",
+  "tagline_en": "A record of study, discipline and growth on my way to an economics degree at a university in the United States or Canada.",
   "description": "Портфолио Дениса Галюкевича: спорт, статьи, хронология и достижения на пути к экономическому образованию в США или Канаде.",
+  "description_en": "Portfolio of Denis Galyukevich: sport, articles, a chronicle of progress and achievements on the way to studying economics in the United States or Canada.",
   "sections": {
     "sport": "Дисциплина и рост показателей в беге.",
+    "sport_en": "Discipline and progress in running.",
     "articles": "Мои исследования и мнения об экономике и не только.",
+    "articles_en": "My research and views on economics and beyond.",
     "chronicle": "Все мои записи по порядку: задумки, планы, события и идеи, а также итоги каждого квартала и года.",
-    "achievements": "Проекты, результаты, олимпиады и сертификаты с подтверждением."
+    "chronicle_en": "All my entries in order — intentions, plans, events and ideas — plus a review of every quarter and year.",
+    "achievements": "Проекты, результаты, олимпиады и сертификаты с подтверждением.",
+    "achievements_en": "Projects, results, olympiads and certificates, each with proof."
   },
   "intros": {
     "sport": "Раздел спорта я решил добавить, чтобы отслеживать собственную дисциплину и её развитие.",
-    "articles": "Мои исследования и мнения своими словами: экономика, мир и идеи, которые за ними стоят. Оригинал на русском, рядом — перевод на английский.",
+    "sport_en": "I added this section to keep track of my own discipline and how it grows over time.",
+    "articles": "Мои исследования и мнения своими словами: экономика, мир и идеи, которые за ними стоят. Статьи я пишу на русском, и у каждой есть английская версия.",
+    "articles_en": "My research and opinions in my own words: economics, the world, and the ideas behind them. I write in Russian, and every article has an English version.",
     "chronicle": "Здесь на протяжении всего пути я записываю свои задумки, планы, события и идеи.",
-    "achievements": "Всё, что сделано и чего удалось добиться: проекты, учёба, олимпиады и конкурсы, сертификаты и спорт. У каждого пункта есть описание, подтверждение и дата публикации."
+    "chronicle_en": "Throughout my journey, I record my intentions, plans, events and ideas here.",
+    "achievements": "Всё, что сделано и чего удалось добиться: проекты, учёба, олимпиады и конкурсы, сертификаты и спорт. У каждого пункта есть описание, подтверждение и дата публикации.",
+    "achievements_en": "Everything I have done and achieved: projects, academics, olympiads and competitions, certificates and sport. Each item comes with a description, proof and a publication date."
   },
   "how_i_write": "В каждой статье я разбираю определённую тему, а в конце высказываю своё мнение и, по возможности, предлагаю решение той или иной проблемы.",
+  "how_i_write_en": "In each article I explore one topic in depth, and at the end I share my own view and, where possible, propose a solution to the problem.",
   "how_achievements": "Только то, что можно подтвердить: ссылка, документ, фото или видео. У каждого достижения есть запись в хронологии, где рассказана история за ним — как к этому пришёл и что это дало.",
+  "how_achievements_en": "Only what can be verified makes it here: a link, a document, a photo or a video. Each achievement has a chronicle entry that tells the story behind it — how I got there and what it gave me.",
   "year_summary_note": "Первый годовой итог появится в конце 2027 года, а 2026 год подытожит итог IV квартала.",
-  "footer_note": "Сделано с помощью ИИ",
+  "year_summary_note_en": "The first annual review will appear at the end of 2027; 2026 will be covered by the Q4 review.",
+  "footer_note": "",
+  "footer_note_en": "",
   "start_year": 2026
 }

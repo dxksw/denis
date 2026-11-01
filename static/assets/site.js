@@ -66,27 +66,10 @@
     apply('*');
   });
 
-  // Переключатель языка статьи: RU (оригинал) / EN (перевод)
-  document.querySelectorAll('[data-lang-root]').forEach(function (root) {
-    var buttons = root.querySelectorAll('[data-lang-btn]');
-    var sw = root.querySelector('[data-lang-switch]');
-    if (!buttons.length) return;
-    if (sw) sw.hidden = false;
-
-    function set(lang) {
-      root.setAttribute('data-active-lang', lang);
-      buttons.forEach(function (b) {
-        b.setAttribute('aria-pressed', b.getAttribute('data-lang-btn') === lang ? 'true' : 'false');
-      });
-    }
-
-    buttons.forEach(function (b) {
-      b.addEventListener('click', function () {
-        var lang = b.getAttribute('data-lang-btn');
-        set(lang);
-        if (window.history && history.replaceState) history.replaceState(null, '', lang === 'en' ? '#en' : location.pathname);
-      });
+  // Переключатель языка сохраняет открытую вкладку (#quarter, #certificates и т. п.)
+  document.querySelectorAll('.lang a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      if (location.hash) a.href = a.href.split('#')[0] + location.hash;
     });
-    set(location.hash === '#en' ? 'en' : 'ru');
   });
 })();

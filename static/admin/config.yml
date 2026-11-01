@@ -1,5 +1,6 @@
 # Настройки админ-панели (Sveltia CMS).
 # __REPO__, __BRANCH__ и __SITE_URL__ подставляются автоматически при сборке сайта.
+# Раздел «Тексты интерфейса» генерируется скриптом tools/gen-ui.mjs.
 
 backend:
   name: github
@@ -37,7 +38,7 @@ collections:
   - name: chronicle
     label: Хронология
     label_singular: запись
-    description: 'Задумки, планы, события и идеи, а также итоги квартала и года. На сайте свежие записи показываются сверху.'
+    description: 'Задумки, планы, события и идеи, а также итоги квартала и года. Пиши на русском — английскую версию можно добавить в блоке «English version» или попросить Claude перевести.'
     folder: content/chronicle
     format: json
     extension: json
@@ -70,6 +71,16 @@ collections:
       - label: Текст
         name: body
         widget: markdown
+      - label: English version
+        name: en
+        widget: object
+        required: false
+        collapsed: true
+        hint: 'Перевод для английской версии сайта. Если оставить пустым, там будет русский текст с пометкой «In Russian» и ссылкой на Google Переводчик.'
+        fields:
+          - { label: Title (EN), name: title, widget: string, required: false }
+          - { label: Period (EN), name: period, widget: string, required: false, hint: 'Например, «Q4 2026» или «2027».' }
+          - { label: Text (EN), name: body, widget: markdown, required: false }
       - label: Начальная точка
         name: is_start
         widget: boolean
@@ -87,7 +98,7 @@ collections:
   - name: articles
     label: Статьи
     label_singular: статью
-    description: 'Исследования и мнения. Оригинал на русском, перевод на английский — по желанию.'
+    description: 'Исследования и мнения. Пиши на русском — английскую версию можно добавить в блоке «English version» или попросить Claude перевести.'
     folder: content/articles
     format: json
     extension: json
@@ -130,12 +141,12 @@ collections:
         required: false
         hint: 'Каждый источник — отдельным пунктом: автор, название, ссылка.'
         field: { label: Источник, name: source, widget: string }
-      - label: Перевод на английский
+      - label: English version
         name: en
         widget: object
         required: false
         collapsed: true
-        hint: 'Необязательно. Если заполнить, на странице статьи появится переключатель RU / EN.'
+        hint: 'Перевод для английской версии сайта. Если оставить пустым, там будет русский текст с пометкой «In Russian» и ссылкой на Google Переводчик.'
         fields:
           - { label: Title (EN), name: title, widget: string, required: false }
           - { label: Text (EN), name: body, widget: markdown, required: false }
@@ -187,6 +198,15 @@ collections:
           - { label: Подпись к ссылке, name: label, widget: string, required: false, hint: 'Например, «Протокол олимпиады». Если оставить пустым, покажется адрес сайта.' }
           - { label: Фото или скан, name: image, widget: image, required: false }
           - { label: Файл (PDF), name: file, widget: file, required: false }
+      - label: English version
+        name: en
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { label: Title (EN), name: title, widget: string, required: false }
+          - { label: Description (EN), name: description, widget: markdown, required: false }
+          - { label: Proof link label (EN), name: proof_label, widget: string, required: false }
       - label: Черновик
         name: draft
         widget: boolean
@@ -262,6 +282,15 @@ collections:
         name: note
         widget: text
         required: false
+      - label: English version
+        name: en
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { label: Title (EN), name: title, widget: string, required: false }
+          - { label: Label (EN), name: label, widget: string, required: false, hint: 'Например, «Baseline».' }
+          - { label: Note (EN), name: note, widget: text, required: false }
 
   # ───────────── Страницы и настройки ─────────────
   - name: settings
@@ -275,23 +304,32 @@ collections:
         file: content/settings/about.json
         fields:
           - { label: Заголовок страницы, name: title, widget: string }
+          - { label: Заголовок страницы (EN), name: title_en, widget: string, required: false }
           - { label: Моя история, name: story, widget: markdown }
+          - { label: Моя история (EN), name: story_en, widget: markdown, required: false }
           - { label: Почему экономика, name: why, widget: markdown }
+          - { label: Почему экономика (EN), name: why_en, widget: markdown, required: false }
           - label: Точка ноль
             name: point_zero
             widget: object
             fields:
               - { label: Дата, name: date, widget: string, hint: 'Например, «Ноябрь 2026».' }
+              - { label: Дата (EN), name: date_en, widget: string, required: false }
               - { label: Вступление, name: intro, widget: text }
+              - { label: Вступление (EN), name: intro_en, widget: text, required: false }
               - label: Показатели
                 name: rows
                 widget: list
                 summary: '{{fields.label}} — {{fields.value}}'
                 fields:
                   - { label: Показатель, name: label, widget: string }
+                  - { label: Показатель (EN), name: label_en, widget: string, required: false }
                   - { label: Пояснение, name: note, widget: string, required: false }
+                  - { label: Пояснение (EN), name: note_en, widget: string, required: false }
                   - { label: Значение, name: value, widget: string }
+                  - { label: Значение (EN), name: value_en, widget: string, required: false }
               - { label: О подтверждении, name: verification, widget: text, required: false }
+              - { label: О подтверждении (EN), name: verification_en, widget: text, required: false }
           - label: Навыки
             name: skills
             widget: list
@@ -300,22 +338,31 @@ collections:
             hint: 'Появятся на странице «Обо мне», когда добавишь первый.'
             fields:
               - { label: Навык, name: name, widget: string }
+              - { label: Навык (EN), name: name_en, widget: string, required: false }
               - { label: Описание, name: description, widget: text, required: false }
+              - { label: Описание (EN), name: description_en, widget: text, required: false }
               - { label: Ссылка на подтверждение, name: proof_url, widget: string, required: false }
           - label: Цели («Куда я иду»)
             name: goals
             widget: list
-            field: { label: Цель, name: goal, widget: text }
+            summary: '{{fields.text}}'
+            fields:
+              - { label: Цель, name: text, widget: text }
+              - { label: Цель (EN), name: text_en, widget: text, required: false }
           - { label: Как я веду хронологию, name: chronicle_method, widget: text }
+          - { label: Как я веду хронологию (EN), name: chronicle_method_en, widget: text, required: false }
           - { label: Портрет, name: portrait, widget: image, required: false }
           - { label: Подпись под именем, name: subtitle, widget: string, required: false }
+          - { label: Подпись под именем (EN), name: subtitle_en, widget: string, required: false }
           - label: Факты в карточке
             name: facts
             widget: list
             summary: '{{fields.label}}: {{fields.value}}'
             fields:
               - { label: Название, name: label, widget: string }
+              - { label: Название (EN), name: label_en, widget: string, required: false }
               - { label: Значение, name: value, widget: string }
+              - { label: Значение (EN), name: value_en, widget: string, required: false }
           - label: Где меня найти
             name: socials
             widget: list
@@ -332,30 +379,47 @@ collections:
         file: content/settings/site.json
         fields:
           - { label: Имя, name: name, widget: string }
+          - { label: Имя (EN), name: name_en, widget: string, required: false, hint: 'Пиши так же, как в загранпаспорте.' }
           - { label: Инициалы для значка, name: initials, widget: string }
+          - { label: Инициалы (EN), name: initials_en, widget: string, required: false }
           - { label: Строка над именем, name: kicker, widget: string }
+          - { label: Строка над именем (EN), name: kicker_en, widget: string, required: false }
           - { label: Подпись под именем, name: tagline, widget: text }
+          - { label: Подпись под именем (EN), name: tagline_en, widget: text, required: false }
           - { label: Описание сайта для поисковиков, name: description, widget: text }
+          - { label: Описание сайта для поисковиков (EN), name: description_en, widget: text, required: false }
           - label: Описания разделов на главной
             name: sections
             widget: object
             fields:
               - { label: Спорт, name: sport, widget: text }
+              - { label: Спорт (EN), name: sport_en, widget: text, required: false }
               - { label: Статьи, name: articles, widget: text }
+              - { label: Статьи (EN), name: articles_en, widget: text, required: false }
               - { label: Хронология, name: chronicle, widget: text }
+              - { label: Хронология (EN), name: chronicle_en, widget: text, required: false }
               - { label: Достижения, name: achievements, widget: text }
+              - { label: Достижения (EN), name: achievements_en, widget: text, required: false }
           - label: Вступления в начале разделов
             name: intros
             widget: object
             fields:
               - { label: Спорт, name: sport, widget: text }
+              - { label: Спорт (EN), name: sport_en, widget: text, required: false }
               - { label: Статьи, name: articles, widget: text }
+              - { label: Статьи (EN), name: articles_en, widget: text, required: false }
               - { label: Хронология, name: chronicle, widget: text }
+              - { label: Хронология (EN), name: chronicle_en, widget: text, required: false }
               - { label: Достижения, name: achievements, widget: text }
+              - { label: Достижения (EN), name: achievements_en, widget: text, required: false }
           - { label: Блок «Как я пишу», name: how_i_write, widget: text }
+          - { label: Блок «Как я пишу» (EN), name: how_i_write_en, widget: text, required: false }
           - { label: Блок «Как сюда попадают достижения», name: how_achievements, widget: text }
+          - { label: Блок «Как сюда попадают достижения» (EN), name: how_achievements_en, widget: text, required: false }
           - { label: Пояснение к итогам года, name: year_summary_note, widget: text, required: false }
-          - { label: Подпись в подвале, name: footer_note, widget: string, required: false }
+          - { label: Пояснение к итогам года (EN), name: year_summary_note_en, widget: text, required: false }
+          - { label: Подпись в подвале, name: footer_note, widget: string, required: false, hint: 'Можно оставить пустой.' }
+          - { label: Подпись в подвале (EN), name: footer_note_en, widget: string, required: false }
           - { label: Год начала, name: start_year, widget: number, value_type: int }
 
       - name: sport
@@ -371,3 +435,776 @@ collections:
               - { label: 10 км, name: ten_k, widget: string, required: false }
               - { label: Полумарафон, name: half, widget: string, required: false }
               - { label: Марафон, name: marathon, widget: string, required: false }
+
+      - name: ui
+        label: Тексты интерфейса (меню, заголовки, кнопки)
+        file: content/settings/ui.json
+        fields:
+          # >>> UI
+          - label: "Меню"
+            name: menu
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Обо мне"
+                name: about
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Спорт"
+                name: sport
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Статьи"
+                name: articles
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Хронология"
+                name: chronicle
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Достижения"
+                name: achievements
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Общие подписи"
+            name: common
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Перейти к содержанию"
+                name: skip
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Контакты"
+                name: contact
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Раздел"
+                name: section
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Сначала новые"
+                name: newest
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Опубликовано"
+                name: published
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Записано"
+                name: recorded
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Подтверждение"
+                name: proof
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Здесь пока пусто."
+                name: empty
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Пока пусто"
+                name: empty_short
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Читать →"
+                name: read
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Читать запись →"
+                name: read_entry
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Читать статью →"
+                name: read_article
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Открыть документ →"
+                name: open_doc
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "На русском"
+                name: in_ru
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Эта запись пока доступна только на русском языке."
+                name: only_ru
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Прочитать через Google Переводчик →"
+                name: google_tr
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Язык"
+                name: lang
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Главная"
+            name: home
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Обо мне"
+                name: btn_about
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Читать хронологию"
+                name: btn_chronicle
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Разделы"
+                name: sections
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Обо мне"
+            name: about
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Обо мне"
+                name: kicker
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Моя история"
+                name: story
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Почему экономика"
+                name: why
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Точка ноль"
+                name: baseline
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "О подтверждении"
+                name: verification
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Навыки"
+                name: skills
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Куда я иду"
+                name: goals
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Как я веду хронологию"
+                name: method
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Открыть хронологию →"
+                name: open_chronicle
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Профиль"
+                name: profile
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Где меня найти"
+                name: find_me
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Подтверждение →"
+                name: skill_proof
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Спорт"
+            name: sport
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Бег"
+                name: running
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Личные рекорды"
+                name: records
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Развитие бега: 5 км по кварталам"
+                name: chart_title
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Лучшее время на 5 км за каждый квартал. Шкала перевёрнута: чем выше…"
+                name: chart_note
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: text, required: false }
+                  - { label: EN, name: en, widget: text, required: false }
+              - label: "Квартал"
+                name: th_quarter
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Лучшее время на 5 км"
+                name: th_best
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Изменение"
+                name: th_change
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Первый замер"
+                name: first
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "быстрее"
+                name: faster
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "медленнее"
+                name: slower
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Без изменений"
+                name: same
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "История забегов"
+                name: history
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Сначала новые. Под каждым забегом — скриншот из приложения как подт…"
+                name: history_note
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: text, required: false }
+                  - { label: EN, name: en, widget: text, required: false }
+              - label: "Дистанция"
+                name: distance
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Время"
+                name: time
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Темп"
+                name: pace
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Записано"
+                name: recorded_with
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Ещё не пробегал"
+                name: not_run
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Цель"
+                name: goal
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Личный рекорд"
+                name: pr
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Протокол забега →"
+                name: protocol
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Итог сезона"
+                name: season
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Появится в конце {month} {year} в хронологии"
+                name: season_soon
+                widget: object
+                hint: "Не удаляй {month} и {year} — туда подставятся месяц и год."
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Забегов пока нет."
+                name: no_runs
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "График появится после первого забега на 5 км."
+                name: chart_empty
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "5 км"
+                name: d5
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "10 км"
+                name: d10
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Полумарафон"
+                name: dhalf
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Марафон"
+                name: dfull
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "км"
+                name: km
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Скриншот из приложения"
+                name: screenshot_alt
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "По спортивным часам"
+                name: rec_watch
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Протокол «5 вёрст»"
+                name: rec_5v
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Официальный протокол"
+                name: rec_official
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Статьи"
+            name: articles
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Все"
+                name: all
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Публикации · сначала новые"
+                name: list_head
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Статей пока нет."
+                name: none
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "В этой теме пока нет статей."
+                name: none_topic
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Темы статей"
+                name: topics
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Как я пишу"
+                name: how
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Эту статью также можно прочитать на сайтах:"
+                name: also
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Источники"
+                name: sources
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "← Все статьи"
+                name: back
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Без названия"
+                name: untitled
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Хронология"
+            name: chronicle
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Общая хронология"
+                name: tab_all
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Итоги квартала"
+                name: tab_quarter
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Итоги года"
+                name: tab_year
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Начальная точка"
+                name: tab_start
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Разделы хронологии"
+                name: tabs_label
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Типы записей:"
+                name: types
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "В конце каждого квартала — итог: что изменилось за три месяца в учё…"
+                name: quarter_note
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: text, required: false }
+                  - { label: EN, name: en, widget: text, required: false }
+              - label: "В конце каждого года — большой итог: главное за год и сравнение с н…"
+                name: year_note
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: text, required: false }
+                  - { label: EN, name: en, widget: text, required: false }
+              - label: "Записей пока нет."
+                name: none
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Первый итог появится в конце {month} {year}."
+                name: quarter_soon
+                widget: object
+                hint: "Не удаляй {month} и {year} — туда подставятся месяц и год."
+                fields:
+                  - { label: RU, name: ru, widget: text, required: false }
+                  - { label: EN, name: en, widget: text, required: false }
+              - label: "Мои показатели на старте — в блоке «Точка ноль» на странице «Обо мн…"
+                name: start_link
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: text, required: false }
+                  - { label: EN, name: en, widget: text, required: false }
+              - label: "Начальная точка ещё не записана."
+                name: start_none
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "← Вся хронология"
+                name: back
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Достижения"
+            name: achievements
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Как сюда попадают достижения"
+                name: how
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Разделы достижений"
+                name: tabs_label
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Темы, типы записей и разделы"
+            name: labels
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Экономика"
+                name: art_econ
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Психология и философия"
+                name: art_psy
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Учебные исследования"
+                name: art_study
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Прочее"
+                name: art_other
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Задумка"
+                name: type_intent
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "План"
+                name: type_plan
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Событие"
+                name: type_event
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Идея"
+                name: type_idea
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Итог квартала"
+                name: type_q
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Итог года"
+                name: type_y
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Проекты"
+                name: ach_projects
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Учёба"
+                name: ach_study
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Олимпиады и конкурсы"
+                name: ach_olymp
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Сертификаты"
+                name: ach_certs
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Спорт"
+                name: ach_sport
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Спортивные часы"
+                name: src_watch
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "5 вёрст"
+                name: src_5v
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Официальный забег"
+                name: src_official
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Другое"
+                name: src_other
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          - label: "Страница «не найдено»"
+            name: errors
+            widget: object
+            collapsed: true
+            fields:
+              - label: "Ошибка 404"
+                name: kicker
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Страница не найдена"
+                name: title
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "Возможно, ссылка устарела. Начните с главной страницы."
+                name: text
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+              - label: "На главную"
+                name: btn
+                widget: object
+                fields:
+                  - { label: RU, name: ru, widget: string, required: false }
+                  - { label: EN, name: en, widget: string, required: false }
+          # <<< UI

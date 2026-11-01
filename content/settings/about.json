@@ -1,30 +1,83 @@
 {
   "title": "Кто я и куда иду",
+  "title_en": "Who I am and where I am heading",
   "story": "Я живу в Ростове-на-Дону, учусь в РАНХиГС и изучаю экономику. Готовлюсь к поступлению на экономический или аналитический факультет университета в США, Канаде или Китае. Этот сайт — место, где я фиксирую свой путь к этой цели.",
+  "story_en": "I live in Rostov-on-Don, Russia, and study economics at RANEPA, the Russian Presidential Academy of National Economy and Public Administration. I am preparing to apply to economics and analytics programs at universities in the United States, Canada or China. This website is where I document my path toward that goal.",
   "why": "Цифры всегда давались мне легко. Мне интересно наблюдать за экономикой стран и компаний и самому анализировать то, что в ней происходит.",
+  "why_en": "Numbers have always come easily to me. I enjoy following how the economies of countries and companies change, and I like analyzing what is happening in them on my own.",
   "point_zero": {
     "date": "Ноябрь 2026",
+    "date_en": "November 2026",
     "intro": "Начальная точка, записанная до любых достижений. Всё, что появится на сайте позже, сравнивается с ней.",
+    "intro_en": "My starting point, recorded before any achievements. Everything that appears on this site later is measured against it.",
     "rows": [
-      { "label": "Бег · 5 км", "note": "по моим спортивным часам", "value": "27:30" },
-      { "label": "Учёба", "note": "средний балл аттестата за 9 классов", "value": "4,35 из 5" },
-      { "label": "Английский", "note": "уровень по шкале CEFR, по результатам тестов", "value": "A1" }
+      {
+        "label": "Бег · 5 км",
+        "label_en": "Running · 5 km",
+        "note": "по моим спортивным часам",
+        "note_en": "measured by my sports watch",
+        "value": "27:30",
+        "value_en": "27:30"
+      },
+      {
+        "label": "Учёба",
+        "label_en": "Academics",
+        "note": "средний балл аттестата за 9 классов",
+        "note_en": "grade average on my Grade 9 certificate (Russian 5-point scale)",
+        "value": "4,35 из 5",
+        "value_en": "4.35 / 5"
+      },
+      {
+        "label": "Английский",
+        "label_en": "English",
+        "note": "уровень по шкале CEFR, по результатам тестов",
+        "note_en": "CEFR level, based on the tests I have taken",
+        "value": "A1",
+        "value_en": "A1"
+      }
     ],
-    "verification": "Эти показатели пока нельзя подтвердить документально: время на 5 км записано моими спортивными часами без официального протокола, оригинал аттестата хранится по месту учёбы, а уровень английского определён по результатам пройденных тестов — официального сертификата пока нет. Новые результаты на сайте будут сопровождаться подтверждениями."
+    "verification": "Эти показатели пока нельзя подтвердить документально: время на 5 км записано моими спортивными часами без официального протокола, оригинал аттестата хранится по месту учёбы, а уровень английского определён по результатам пройденных тестов — официального сертификата пока нет. Новые результаты на сайте будут сопровождаться подтверждениями.",
+    "verification_en": "These figures cannot be verified with documents yet: my 5 km time was recorded by my sports watch rather than in an official race, the original of my certificate is kept at my place of study, and my English level is based on the tests I have taken, not an official certificate. New results on this site will always come with proof."
   },
   "skills": [],
   "goals": [
-    "Поступить на экономику и аналитику в университет США или Канады; подача документов — в 2029–2031 годах (более точные сроки станут известны ближе к поступлению).",
-    "Учебная цель: английский на уровне B2–C1, IELTS 6.5+.",
-    "Цель в спорте: развитие долгосрочной дисциплины."
+    {
+      "text": "Поступить на экономику и аналитику в университет США или Канады; подача документов — в 2029–2031 годах (более точные сроки станут известны ближе к поступлению).",
+      "text_en": "Study economics and analytics at a university in the United States or Canada, applying in 2029–2031 (the exact timing will become clear closer to the date)."
+    },
+    {
+      "text": "Учебная цель: английский на уровне B2–C1, IELTS 6.5+.",
+      "text_en": "Academic goal: English at B2–C1 level and an IELTS score of 6.5 or higher."
+    },
+    {
+      "text": "Цель в спорте: развитие долгосрочной дисциплины.",
+      "text_en": "Sport goal: building long-term discipline."
+    }
   ],
   "chronicle_method": "Запись — при каждом значимом событии: результат, законченная книга или курс, забег, поворотный момент. В конце каждого квартала — итог по всем разделам. Точка ноль остаётся неизменной, поэтому пройденный путь всегда виден.",
+  "chronicle_method_en": "I write an entry for every significant event: a result, a finished book or course, a race, a turning point. At the end of every quarter I review all sections. The baseline never changes, so the distance travelled is always visible.",
   "portrait": "",
   "subtitle": "Студент, изучаю экономику",
+  "subtitle_en": "Student of economics",
   "facts": [
-    { "label": "Город", "value": "Ростов-на-Дону, Россия" },
-    { "label": "Поступление", "value": "2029–2031 · США, Канада, Китай" },
-    { "label": "Хронология", "value": "с ноября 2026" }
+    {
+      "label": "Город",
+      "label_en": "City",
+      "value": "Ростов-на-Дону, Россия",
+      "value_en": "Rostov-on-Don, Russia"
+    },
+    {
+      "label": "Поступление",
+      "label_en": "Applying",
+      "value": "2029–2031 · США, Канада, Китай",
+      "value_en": "2029–2031 · USA, Canada, China"
+    },
+    {
+      "label": "Хронология",
+      "label_en": "Chronicle",
+      "value": "с ноября 2026",
+      "value_en": "since November 2026"
+    }
   ],
   "socials": []
 }
