@@ -2,7 +2,7 @@
   "category": "Проекты",
   "title": "Сайт-портфолио",
   "date": "2026-11-01",
-  "description": "Сайт, который вы сейчас читаете. Создан с помощью ИИ без написания кода: от постановки задачи и выбора дизайна до текстов и публикации.",
+  "description": "Сайт, который вы сейчас читаете. Я продумал структуру, разделы и систему подтверждений, написал все тексты на русском и английском и сам поддерживаю сайт. Код я не писал от руки: сайт собран с помощью ИИ-ассистента и публикуется через GitHub.",
   "proof": {
     "url": "/",
     "label": "Этот сайт",
@@ -12,7 +12,7 @@
   "draft": false,
   "en": {
     "title": "Portfolio website",
-    "description": "The website you are reading now. I built it with AI without writing code by hand: from defining the task and choosing the design to writing the texts and publishing it.",
+    "description": "The website you are reading now. I planned its structure, its sections and its verification system, wrote all of the texts in Russian and English, and maintain the site myself. I did not write the code by hand: the site was built with an AI assistant and is published through GitHub.",
     "proof_label": "This website"
   }
 }
